@@ -12,7 +12,7 @@ function ChatLayout() {
 
   return (
     <div className="flex">
-      <Sidebar setSelectedRoom={setSelectedRoom} />
+      <Sidebar selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom}  />
       <ChatArea selectedRoom={selectedRoom} />
     </div>
   );

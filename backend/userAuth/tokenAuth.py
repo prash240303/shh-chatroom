@@ -10,10 +10,20 @@ from rest_framework.authentication import BaseAuthentication
 from jwt import decode
 User = get_user_model()
 
+import logging
+logger = logging.getLogger(__name__)
+
+logger = logging.getLogger(__name__)
+
+class JWTWebsocketMiddleware:
+    async def __call__(self, scope, receive, send):
+        # Log the token for debugging
+        logger.debug(f"WebSocket connection request with query string: {scope.get('query_string', b'').decode('utf-8')}")
+
+        # Remaining code...
 
 class JWTAuthentication(BaseAuthentication):
     # Generate token, extract token from header, decode token, get user, validate token
-
     def authenticate(self, request):
         token = self.extract_token(request)
         if token is None:

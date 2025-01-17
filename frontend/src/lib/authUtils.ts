@@ -15,9 +15,9 @@ export const getAuthTokenFromCookie = (): string | null => {
 
 export const isAuthTokenValid = (token: string): boolean => {
   try {
-    const payload = JSON.parse(atob(token.split(".")[1])); 
+    const payload = JSON.parse(atob(token.split(".")[1]));
     const currentTime = Math.floor(Date.now() / 1000);
-    return payload.exp > currentTime; 
+    return payload.exp > currentTime;
   } catch (error) {
     console.error("Invalid token format:", error);
     return false;
@@ -25,12 +25,11 @@ export const isAuthTokenValid = (token: string): boolean => {
 };
 
 export const checkAndRedirectIfUnauthenticated = (): void => {
-  console.log(BASE_URL)
   const params = new URLSearchParams(window.location.search);
   const roomId = params.get("room_id");
-  if (roomId) {
-    const authToken = getAuthTokenFromCookie();
-    if (authToken) {
+  const authToken = getAuthTokenFromCookie();
+  if (authToken) {
+    if (roomId) {
       axios
         .post(`${BASE_URL}room/join/`, { room_id: roomId }, {
           headers: { Authorization: `Bearer ${authToken}` },
@@ -38,14 +37,25 @@ export const checkAndRedirectIfUnauthenticated = (): void => {
         .then(() => console.log("Successfully joined the room:", roomId))
         .catch((error) => {
           console.error("Error joining room:", error);
-          window.location.href= "/error?message=Invalid room ID";
+          window.location.href = "/error?message=Invalid room ID";
         });
-    } else {
-      console.error("No authentication token found");
-      window.location.href= `/login?room_id=${roomId}`
+    }
+  }
+  else {
+    if (roomId) {
+      window.location.href = `/login?room_id=${roomId}`
+    }
+    else {
+      window.location.href = "/login"
     }
   }
 };
+
+
+
+
+
+// 
 
 
 

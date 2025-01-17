@@ -1,58 +1,71 @@
 from channels.db import database_sync_to_async
 from rest_framework.exceptions import AuthenticationFailed
 from django.db import close_old_connections
-from jwt import ExpiredSignatureError, InvalidTokenError
+from jwt import ExpiredSignatureError, InvalidTokenError, decode
 from django.conf import settings
 from userAuth.models import User  # Update with the correct User model import
-from jwt import decode
 
 
 class JWTWebsocketMiddleware:
     """
-    Custom middleware to authenticate WebSocket connections using JWT tokens.
+    Middleware to authenticate WebSocket connections using JWT tokens.
     """
     def __init__(self, inner):
         self.inner = inner
 
     async def __call__(self, scope, receive, send):
+        # Ensure old database connections are closed
         close_old_connections()
 
+        # Parse the query string for the token
         query_string = scope.get("query_string", b"").decode("utf-8")
-        query_parameters = dict(qp.split("=") for qp in query_string.split("&") if "=" in qp)
+        query_parameters = self.parse_query_string(query_string)
         token = query_parameters.get("token")
 
         if not token:
             # Close connection if token is missing
             await send({"type": "websocket.close", "code": 4000})
-            return  # Exit middleware
+            return
 
         try:
-            user = await self.auth_websocket(token)  # Await the asynchronous call
-            scope['user'] = user
+            user = await self.authenticate_user(token)  # Authenticate user asynchronously
+            scope['user'] = user  # Add authenticated user to scope
         except AuthenticationFailed:
-            # Close connection if token is invalid
+            # Close connection if token is invalid or expired
             await send({"type": "websocket.close", "code": 4002})
-            return  # Exit middleware
+            return
 
-        # Pass to the inner application (AuthMiddlewareStack, URLRouter, etc.)
+        # Pass to the inner application
         return await self.inner(scope, receive, send)
 
-    @database_sync_to_async
-    def auth_websocket(self, token):
+    def parse_query_string(self, query_string):
         """
-        Authenticate and return the user for the given token.
+        Parse query string into a dictionary of parameters.
         """
         try:
-            # Decode the token
+            return dict(qp.split("=") for qp in query_string.split("&") if "=" in qp)
+        except ValueError:
+            # Return empty dict if query string is malformed
+            return {}
+
+    @database_sync_to_async
+    def authenticate_user(self, token):
+        """
+        Authenticate the user using the provided JWT token.
+        """
+        try:
+            # Decode the JWT token
             payload = decode(token, settings.SECRET_KEY, algorithms=["HS256"])
             
-            # Verify payload (implement your logic if needed)
+            # Extract user ID from the token payload
             user_id = payload.get("id")
             if not user_id:
                 raise AuthenticationFailed("Invalid token payload")
             
-            # Fetch user
+            # Fetch and return the user
             user = User.objects.get(id=user_id)
             return user
-        except (InvalidTokenError, ExpiredSignatureError, User.DoesNotExist):
+        except ExpiredSignatureError:
+            raise AuthenticationFailed("Token has expired")
+        except (InvalidTokenError, User.DoesNotExist):
             raise AuthenticationFailed("Invalid token")

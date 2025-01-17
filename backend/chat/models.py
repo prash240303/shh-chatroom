@@ -20,7 +20,7 @@ class Message(models.Model):
 
 class Rooms(models.Model):
     room_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)  # Unique room ID for sharing
-    chat_room_name = models.CharField(max_length=255, unique=True)
+    chat_room_name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

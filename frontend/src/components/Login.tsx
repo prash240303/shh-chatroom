@@ -15,12 +15,9 @@ export default function Login() {
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
-  const redirectURL =
-    searchParams.get("redirect") ||
-    (searchParams.get("room_id") ? `/room/${searchParams.get("room_id")}` : "/");
+  
 
-  console.log("redirect url", redirectURL)
-  console.log("base url", BASE_URL)
+  
 
   useEffect(() => {
     const token = getCookie("token");
@@ -70,8 +67,12 @@ export default function Login() {
       if (!response.ok) {
         toast.error(data?.detail || "Invalid email or password. Please try again.");
       } else {
+        // store the email  for chat purposes 
+        localStorage.setItem('userEmailKey', formData.email);
+        
         const token = data.token;
         document.cookie = `token=${token}; path=/`;
+        console.log("token ", token)
         toast.success("Login successful!");
         
         const roomId = searchParams.get("room_id");

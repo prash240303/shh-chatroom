@@ -2,7 +2,7 @@ import './App.css'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Register from './components/Register'
 import Login from './components/Login'
-import { Toaster } from 'react-hot-toast'
+import { Toaster } from "@/components/ui/toaster"
 import ChatLayout from './components/ChatLayout'
 
 function App() {
@@ -17,7 +17,7 @@ function App() {
           } />
         </Routes>
       </BrowserRouter>
-      <Toaster position="top-center" reverseOrder={false} />
+      <Toaster />
     </>
   )
 }

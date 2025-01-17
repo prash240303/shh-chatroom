@@ -75,7 +75,8 @@ def get_user_rooms(request):
         # Prepare room details
         rooms_data = [
             {
-                "room_id": participant.room.chat_room_name,
+                "room_name": participant.room.chat_room_name,
+                "room_id":participant.room.room_id,
                 "created_at": participant.room.created_at,
             }
             for participant in participant_rooms
@@ -89,18 +90,20 @@ def get_user_rooms(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_room(request):
-    """
-    Create a new chat room with a random room ID.
-    """
     try:
+        print(f"Request data: {request.data}")  # Log incoming data
+
         chat_room_name = request.data.get('chat_room_name')
         if not chat_room_name:
             return Response({"error": "Chat room name is required"}, status=400)
 
+        if Rooms.objects.filter(chat_room_name=chat_room_name).exists():
+            return Response({"error": "A room with this name already exists"}, status=400)
+
         room = Rooms.objects.create(chat_room_name=chat_room_name)
         return Response({"room_id": str(room.room_id), "chat_room_name": room.chat_room_name}, status=201)
     except Exception as e:
-        print(f"Error creating room: {str(e)}")
+        print(f"Error creating room: {e}")
         return Response({"error": "Error creating room"}, status=500)
 
 
@@ -127,9 +130,10 @@ def join_room(request):
         return Response({"error": "Error joining room"}, status=500)
 
 
+
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
-def delete_room(room_id):
+def delete_room(request, room_id):
     """
     Delete a chat room by its room ID.
     """
