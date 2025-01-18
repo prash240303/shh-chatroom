@@ -84,7 +84,7 @@ const Sidebar = ({ selectedRoom, setSelectedRoom }: SidebarProps) => {
       const appUrl = window.location.origin;
       setShareableLink(`${appUrl}/?room_id=${newRoom.room_id}`);
       toast.success("Room created successfully!");
-    } catch (error:any) {
+    } catch (error) {
       console.error("Error creating or joining room:",  error );
       toast.error("Failed to create room");
     }

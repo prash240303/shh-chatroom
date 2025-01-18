@@ -6,47 +6,30 @@ from asgiref.sync import sync_to_async
 
 class PersonalChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        try:
-            print("attemting conection")
-            if self.scope["user"].is_authenticated:
-                print(f"User authenticated: {self.scope['user']}")
-                self.accept()
-                print("coonected")
+        request_user = self.scope['user']
+        if request_user.is_authenticated:
+            await self.accept()  # Accept the WebSocket connection
 
-            else:
-                print("auth faiked")
+            # Use room_id from URL kwargs
+            room_id = self.scope['url_route']['kwargs']['room_id']
+            self.room_group_name = f"chat_{room_id}"
 
-        except  Exception as e:
-            print("error", e)
+            # Add user to the room group
+            await self.channel_layer.group_add(
+                self.room_group_name,
+                self.channel_name
+            )
+
+            # Fetch chat history from the database
+            history = await sync_to_async(self.fetch_message_history)()
+
+            # Send message history to the WebSocket
+            await self.send(text_data=json.dumps({
+                "type": "history",
+                "messages": history
+            }))
+        else:
             await self.close()
-
-        # self.room_group_name = None  # Initialize room_group_name to avoid the error
-        # request_user = self.scope['user']
-        # if request_user.is_authenticated:
-        #     chat_with_user = self.scope['url_route']['kwargs']['id']
-        #     user_ids = sorted([int(request_user.id), int(chat_with_user)])
-        #     self.room_group_name = f"chat_{user_ids[0]}-{user_ids[1]}"
-
-        #     # Fetch chat history from the database
-        #     history = await sync_to_async(self.fetch_message_history)()
-
-        #     # Send message history to the WebSocket
-        #     await self.send(text_data=json.dumps({
-        #         "type": "history",
-        #         "messages": history
-        #     }))
-
-        #     # Add user to the room group
-        #     if self.room_group_name:
-        #         await self.channel_layer.group_add(
-        #             self.room_group_name,
-        #             self.channel_name
-        #         )
-
-        #     # Only accept connection after adding to group
-        #     await self.accept()
-        # else:
-        #     await self.close()/
 
 
 

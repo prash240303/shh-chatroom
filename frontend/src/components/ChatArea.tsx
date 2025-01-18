@@ -28,87 +28,73 @@ const ChatArea: React.FC<ChatAreaProps> = ({ selectedRoom }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<string>("");
   const [currentUserEmail, setCurrentUserEmail] = useState<string>("");
-  const [socket, setSocket] = useState<WebSocket | null>(null);
+  // const [socket, setSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
     const email = localStorage.getItem("userEmailKey") || "";
     setCurrentUserEmail(email.trim().toLowerCase());
   }, []);
 
-  function getCookie(name: string) {
-    const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
-    return match ? match[2] : null;
-  }
-
+  // function getCookie(name: string) {
+  //   const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
+  //   return match ? match[2] : null;
+  // }
+ 
 
   useEffect(() => {
     const fetchMessages = async () => {
       if (selectedRoom) {
         try {
-          const response = await axios.get<Message[]>(`${BASE_URL}messages/${selectedRoom}/`, {
+          const response = await axios.get(`${BASE_URL}messages/${selectedRoom}/`, {
             headers: {
               Authorization: `Bearer ${getAuthTokenFromCookie()}`,
             },
           });
+          console.log("feched messages", response)
           setMessages(response.data);
-          console.log(response.data)
         } catch (error) {
           console.error("Error fetching messages:", error);
-          toast.error("Failed to fetch messages");
         }
       }
     };
 
     fetchMessages();
-
-    if (selectedRoom) {
-      // Initialize WebSocket
-      const token = getCookie("token");
-      console.log("hahah", token)
-      const ws = new WebSocket(`ws://127.0.0.1:8000/ws/chat/38e08bf4-746f-4b18-8da8-f02262ac121c/?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InByYXNoQGdtYWlsLmNvbSIsImlkIjoiMSIsImV4cCI6MTczNzIxNTUwMH0.DXIXC38xusVLXcZcVo2f_FjT8mu6Krh75EAxbhU6s7I`);
-      
-      ws.onopen = () => console.log("WebSocket connection opened");
-      
-      ws.onmessage = (event) => {
-        const data: Message = JSON.parse(event.data);
-        setMessages((prevMessages) => [...prevMessages, data]);
-      };
-      
-      ws.onclose = () => console.log("WebSocket connection closed");
-      
-      ws.onerror = (error) => console.error("WebSocket error:", error);
-
-      setSocket(ws);
-
-      return () => {
-        ws.close();
-      };
-    }
   }, [selectedRoom]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (message.trim() && selectedRoom && socket) {
-      socket.send(
-        JSON.stringify({
-          message,
-        })
-      );
-      setMessages((prev) => [
-        ...prev,
-        {
-          message,
-          user: {
-            email: currentUserEmail,
-            first_name: "You",
-            last_name: "",
-            id: 0,
+    if (message.trim() && selectedRoom) {
+      try {
+        const response = await axios.post(
+          `${BASE_URL}messages/${selectedRoom}/send/`,
+          { message },
+          {
+            headers: {
+              Authorization: `Bearer ${getAuthTokenFromCookie()}`,
+            },
+          }
+        );
+        if(!response){
+          toast.error("Error from our side, please try again later")
+        }
+        setMessages((prev) => [
+          ...prev,
+          {
+            message,
+            user: {
+              email: currentUserEmail,
+              first_name: "You",
+              last_name: "",
+              id: 0, // Placeholder for the current user
+            },
+            timestamp: new Date().toISOString(),
+            chat_room: selectedRoom,
           },
-          timestamp: new Date().toISOString(),
-          chat_room: selectedRoom,
-        },
-      ]);
-      setMessage("");
+        ]);
+        setMessage("");
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     }
   };
 
