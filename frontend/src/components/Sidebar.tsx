@@ -4,7 +4,6 @@ import { getAuthTokenFromCookie, handleLogout } from "@/lib/authUtils";
 import toast from "react-hot-toast";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from '@/components/ui/dialog';
-// import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
@@ -12,9 +11,14 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; // Importing Shadcn Popover
 import { Copy, Edit, LockKeyhole, LogOut, MoreVertical, Trash2 } from "lucide-react";
 
+interface Room {
+  roomname: string;
+  roomid: string;
+}
+
 interface SidebarProps {
-  setSelectedRoom: (roomName: string) => void;
-  selectedRoom: string | undefined;
+  setSelectedRoom: (room: Room ) => void;
+  selectedRoom: Room | undefined;
 }
 
 const Sidebar = ({ selectedRoom, setSelectedRoom }: SidebarProps) => {
@@ -34,7 +38,7 @@ const Sidebar = ({ selectedRoom, setSelectedRoom }: SidebarProps) => {
           },
         });
         setRooms(response.data.rooms);
-        console.log("rooms list", response.data)
+        console.log("rooms list", response.data);
       } catch (error) {
         console.error("Error fetching rooms:", error);
         toast.error("Failed to fetch rooms");
@@ -64,7 +68,7 @@ const Sidebar = ({ selectedRoom, setSelectedRoom }: SidebarProps) => {
           },
         }
       );
-      console.log(createResponse)
+      console.log(createResponse);
       const newRoom = createResponse.data;
       await axios.post(
         `${BASE_URL}room/join/`,
@@ -78,14 +82,14 @@ const Sidebar = ({ selectedRoom, setSelectedRoom }: SidebarProps) => {
 
       fetchRooms();
       setIsCreateDialogOpen(false);
-      setSelectedRoom(newRoomName);
+      setSelectedRoom({ roomname: newRoom.room_name, roomid: newRoom.room_id });
       setNewRoomName("");
 
       const appUrl = window.location.origin;
       setShareableLink(`${appUrl}/?room_id=${newRoom.room_id}`);
       toast.success("Room created successfully!");
     } catch (error) {
-      console.error("Error creating or joining room:",  error );
+      console.error("Error creating or joining room:", error);
       toast.error("Failed to create room");
     }
   };
@@ -171,12 +175,12 @@ const Sidebar = ({ selectedRoom, setSelectedRoom }: SidebarProps) => {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
                 className={`p-2 flex items-center justify-between cursor-pointer hover:bg-neutral-600 rounded-lg mb-1 transition-colors ${
-                  room.room_name === selectedRoom ? "bg-neutral-700 text-neutral-100" : "bg-transparent text-neutral-500"
+                  room.room_name === selectedRoom?.roomname ? "bg-neutral-700 text-neutral-100" : "bg-transparent text-neutral-500"
                 }`}
               >
                 <div
                   className="flex items-center flex-1"
-                  onClick={() => setSelectedRoom(room.room_name)}
+                  onClick={() => setSelectedRoom({ roomname: room.room_name, roomid: room.room_id })}
                 >
                   <LockKeyhole className="w-4 h-4 mr-2" />
                   <div className="font-medium text-sm text-neutral-300 truncate">{room.room_name}</div>

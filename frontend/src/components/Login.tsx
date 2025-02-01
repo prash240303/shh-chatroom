@@ -17,8 +17,6 @@ export default function Login() {
   const searchParams = new URLSearchParams(location.search);
   
 
-  
-
   useEffect(() => {
     const token = getCookie("token");
     if (token) {
@@ -35,16 +33,15 @@ export default function Login() {
               toast.error("Failed to join the room.");
             });
         }
-        
-
-        ///
       } 
       else {
-        // handleLogout();
         console.log("hi")
       }
     }
-  }, []);
+    else{
+      navigate("/login")
+    }
+  }, [location]);
 
 
   function getCookie(name: string) {

@@ -50,7 +50,7 @@ export function ChatBubble({
       {!isSender && isFirstMessageInGroup && (
         <Avatar className="w-8 h-8">
           <AvatarImage src={avatarUrl} alt={userName} />
-          <AvatarFallback>{userName[0].toUpperCase()}</AvatarFallback>
+          <AvatarFallback>{userName[0]}</AvatarFallback>
         </Avatar>
       )}
 

@@ -3,17 +3,21 @@ import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import { checkAndRedirectIfUnauthenticated } from "@/lib/authUtils";
 
+type Room = {
+  roomname: string;
+  roomid: string;
+};
 function ChatLayout() {
-  const [selectedRoom, setSelectedRoom] = useState<string | undefined>(undefined);
+  const [selectedRoom, setSelectedRoom] = useState<Room>({ roomname: "", roomid: "" });
 
   useEffect(() => {
-   checkAndRedirectIfUnauthenticated()
+    checkAndRedirectIfUnauthenticated()
   }, []);
 
   return (
     <div className="flex">
-      <Sidebar selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom}  />
-      <ChatArea selectedRoom={selectedRoom} />
+      <Sidebar selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom} />
+        <ChatArea selectedRoom={selectedRoom} />
     </div>
   );
 }

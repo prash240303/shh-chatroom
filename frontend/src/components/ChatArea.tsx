@@ -1,129 +1,152 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState, useRef } from "react";
 import { ArrowUp } from "lucide-react";
 import { getAuthTokenFromCookie } from "@/lib/authUtils";
-import toast from "react-hot-toast";
 import { ChatBubble } from "./ChatBubble";
 
-interface User {
-  email: string;
-  first_name: string;
-  last_name: string;
-  id: number;
-}
-
 interface Message {
+  user: string;
   message: string;
-  user: User;
   timestamp: string;
-  chat_room: string;
 }
 
 interface ChatAreaProps {
-  selectedRoom: string | undefined;
+  selectedRoom?: {
+    roomname: string;
+    roomid: string;
+  };
 }
 
-const ChatArea: React.FC<ChatAreaProps> = ({ selectedRoom }) => {
-  const BASE_URL = `http://127.0.0.1:8000/`;
+const ChatArea = ({ selectedRoom }: ChatAreaProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<string>("");
   const [currentUserEmail, setCurrentUserEmail] = useState<string>("");
-  // const [socket, setSocket] = useState<WebSocket | null>(null);
+  const socketRef = useRef<WebSocket | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Load the current user's email
   useEffect(() => {
     const email = localStorage.getItem("userEmailKey") || "";
     setCurrentUserEmail(email.trim().toLowerCase());
   }, []);
 
-  // function getCookie(name: string) {
-  //   const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
-  //   return match ? match[2] : null;
-  // }
- 
-
+  // WebSocket logic for real-time messaging
   useEffect(() => {
-    const fetchMessages = async () => {
-      if (selectedRoom) {
-        try {
-          const response = await axios.get(`${BASE_URL}messages/${selectedRoom}/`, {
-            headers: {
-              Authorization: `Bearer ${getAuthTokenFromCookie()}`,
+    if (!selectedRoom) return; // Skip if `selectedRoom` is null
+
+    const token = getAuthTokenFromCookie();
+    console.log("Connecting to WebSocket for room:", selectedRoom.roomid);
+    console.log("Token:", token);
+    const socketUrl = `ws://localhost:8000/ws/chat/${selectedRoom.roomid}/?token=${token}`;
+    console.log("WebSocket URL:", socketUrl);
+    socketRef.current = new WebSocket(socketUrl);
+
+    socketRef.current.onopen = () => {
+      console.log("WebSocket connection established");
+    };
+
+
+    socketRef.current.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log("Received WebSocket message:", data);
+
+        if (data.type === "message_history") {
+          setMessages(
+            data.messages.map((msg: Message) => ({
+              user: msg.user,
+              message: msg.message,
+              timestamp: msg.timestamp,
+            }))
+          );
+        } else if (data.type === "message") {
+          setMessages((prev) => [
+            ...prev,
+            {
+              user: data.user,
+              message: data.message,
+              timestamp: data.timestamp,
             },
-          });
-          console.log("feched messages", response)
-          setMessages(response.data);
-        } catch (error) {
-          console.error("Error fetching messages:", error);
+          ]);
+        } else {
+          console.warn("Unexpected WebSocket data format:", data);
         }
+      } catch (error) {
+        console.error("Error processing WebSocket message:", error);
       }
     };
 
-    fetchMessages();
+
+    socketRef.current.onclose = () => {
+      console.log("WebSocket connection closed");
+    };
+
+    return () => {
+      console.log("Cleaning up WebSocket connection for room:", selectedRoom.roomid);
+      socketRef.current?.close();
+      socketRef.current = null;
+      setMessages([]); // Reset messages when the room changes
+    };
   }, [selectedRoom]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+
+
+  // 👇 Auto-scroll to the latest message when `messages` update
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (message.trim() && selectedRoom) {
-      try {
-        const response = await axios.post(
-          `${BASE_URL}messages/${selectedRoom}/send/`,
-          { message },
-          {
-            headers: {
-              Authorization: `Bearer ${getAuthTokenFromCookie()}`,
-            },
-          }
-        );
-        if(!response){
-          toast.error("Error from our side, please try again later")
-        }
-        setMessages((prev) => [
-          ...prev,
-          {
-            message,
-            user: {
-              email: currentUserEmail,
-              first_name: "You",
-              last_name: "",
-              id: 0, // Placeholder for the current user
-            },
-            timestamp: new Date().toISOString(),
-            chat_room: selectedRoom,
-          },
-        ]);
-        setMessage("");
-      } catch (error) {
-        console.error("Error sending message:", error);
-      }
+
+    if (message.trim() && selectedRoom && socketRef.current) {
+      const newMessage = {
+        type: "message",
+        user: currentUserEmail,
+        message,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Send message via WebSocket
+      socketRef.current.send(JSON.stringify(newMessage));
+      setMessage(""); // Clear the input field
+
+      console.log("Message sent:", newMessage);
     }
   };
 
+
   return (
     <div className="chat-area w-4/5 h-screen border-l border-neutral-700 flex flex-col place-items-center bg-neutral-800">
+      {/* Header */}
       <div className="header w-full text-center text-white p-4">
-        <h1 className="text-lg font-bold">{selectedRoom || "Select a Room"}</h1>
+        <h1 className="text-lg font-bold">{selectedRoom?.roomname || "Select a Room"}</h1>
       </div>
 
+      {/* Messages */}
       <div className="messages max-w-5xl flex-1 overflow-y-auto p-4 w-full">
         {messages.map((msg, index) => {
-          const isSender = msg.user.email.trim().toLowerCase() === currentUserEmail;
+          const isSender = msg.user.toLowerCase() === currentUserEmail.toLowerCase();
           const isFirstMessageInGroup =
-            index === 0 || messages[index - 1].user.email !== msg.user.email;
+            index === 0 || messages[index - 1]?.user !== msg.user;
 
           return (
             <ChatBubble
               key={index}
               message={msg.message}
               isSender={isSender}
-              userName={`${msg.user.first_name} ${msg.user.last_name}`}
+              userName={msg.user}
               timestamp={new Date(msg.timestamp)}
               avatarUrl="/"
               isFirstMessageInGroup={isFirstMessageInGroup}
             />
           );
         })}
+        <div ref={messagesEndRef} />
       </div>
 
+      {/* Input Field */}
       <form
         onSubmit={handleSubmit}
         className="flex items-center max-w-5xl gap-2 border border-neutral-600 rounded-full mb-6 py-2 pl-8 pr-2 w-full"
