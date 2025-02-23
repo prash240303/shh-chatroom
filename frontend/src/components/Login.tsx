@@ -125,7 +125,7 @@ export default function Login() {
         <div className="w-full lg:w-1/2 flex items-center justify-center p-6">
           <a
             href="/register"
-            className="text-sm absolute right-10 top-10 text-gray-400 hover:text-white transition-colors"
+            className="text-sm absolute right-10 top-10 text-neutral-400 hover:text-white transition-colors"
           >
             Register
           </a>
@@ -133,7 +133,7 @@ export default function Login() {
           <div className="w-full max-w-sm space-y-8">
             <div className="space-y-2 text-center">
               <h1 className="text-2xl font-semibold tracking-tight">Login</h1>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-neutral-400">
                 Enter your email and password to access your account
               </p>
             </div>
@@ -144,7 +144,7 @@ export default function Login() {
             >
               <div className="space-y-4">
                 <div className="flex flex-col">
-                  <label htmlFor="email" className="text-sm text-gray-400 mb-1">
+                  <label htmlFor="email" className="text-sm text-neutral-400 mb-1">
                     Email Address
                   </label>
                   <Input
@@ -155,12 +155,12 @@ export default function Login() {
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
-                    className="bg-neutral-900 border border-gray-800 text-white placeholder:text-gray-500 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-700"
+                    className="bg-neutral-900 border border-neutral-800 text-white placeholder:text-neutral-500 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-neutral-700"
                   />
                 </div>
 
                 <div className="flex flex-col">
-                  <label htmlFor="password" className="text-sm text-gray-400 mb-1">
+                  <label htmlFor="password" className="text-sm text-neutral-400 mb-1">
                     Password
                   </label>
                   <Input
@@ -171,14 +171,14 @@ export default function Login() {
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
-                    className="bg-neutral-900 border border-gray-800 text-white placeholder:text-gray-500 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-700"
+                    className="bg-neutral-900 border border-neutral-800 text-white placeholder:text-neutral-500 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-neutral-700"
                   />
                 </div>
               </div>
 
               <Button
                 type="submit"
-                className="w-full bg-white text-black font-medium py-2 rounded-md hover:bg-gray-200"
+                className="w-full bg-white text-black font-medium py-2 rounded-md hover:bg-neutral-200"
               >
                 Login
               </Button>

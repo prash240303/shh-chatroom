@@ -60,7 +60,7 @@ export default function Register() {
 
           <a
             href="/login"
-            className="text-sm absolute right-10 top-10  text-gray-400 hover:text-white transition-colors"
+            className="text-sm absolute right-10 top-10  text-neutral-400 hover:text-white transition-colors"
           >
             Login
           </a>
@@ -70,7 +70,7 @@ export default function Register() {
               <h1 className="text-2xl font-semibold tracking-tight">
                 Create an account
               </h1>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-neutral-400">
                 Enter your email below to create your account
               </p>
             </div>
@@ -78,7 +78,7 @@ export default function Register() {
             <form onSubmit={handleFormSubmission} className="space-y-6 p-4 bg-neutral-800 rounded-lg shadow-md">
               <div className="space-y-4">
                 <div className="flex flex-col">
-                  <label htmlFor="full_name" className="text-sm text-gray-400 mb-1">Full Name</label>
+                  <label htmlFor="full_name" className="text-sm text-neutral-400 mb-1">Full Name</label>
                   <Input
                     id="full_name"
                     type="text"
@@ -97,13 +97,13 @@ export default function Register() {
                         last_name: lastname || '',
                       });
                     }}
-                    className="bg-neutral-900 border border-gray-800 text-white placeholder:text-gray-500 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-700"
+                    className="bg-neutral-900 border border-neutral-800 text-white placeholder:text-neutral-500 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-neutral-700"
                   />
                 </div>
 
                 {/* Email Input */}
                 <div className="flex flex-col">
-                  <label htmlFor="email" className="text-sm text-gray-400 mb-1">Email Address</label>
+                  <label htmlFor="email" className="text-sm text-neutral-400 mb-1">Email Address</label>
                   <Input
                     id="email"
                     type="email"
@@ -112,13 +112,13 @@ export default function Register() {
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
-                    className="bg-neutral-900 border border-gray-800 text-white placeholder:text-gray-500 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-700"
+                    className="bg-neutral-900 border border-neutral-800 text-white placeholder:text-neutral-500 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-neutral-700"
                   />
                 </div>
 
                 {/* Password Input */}
                 <div className="flex flex-col">
-                  <label htmlFor="password" className="text-sm text-gray-400 mb-1">Password</label>
+                  <label htmlFor="password" className="text-sm text-neutral-400 mb-1">Password</label>
                   <Input
                     id="password"
                     type="password"
@@ -127,13 +127,13 @@ export default function Register() {
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
-                    className="bg-neutral-900 border border-gray-800 text-white placeholder:text-gray-500 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-700"
+                    className="bg-neutral-900 border border-neutral-800 text-white placeholder:text-neutral-500 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-neutral-700"
                   />
                 </div>
               </div>
 
               {/* Submit Button */}
-              <Button type="submit" className="w-full bg-white text-black font-medium py-2 rounded-md hover:bg-gray-200">
+              <Button type="submit" className="w-full bg-white text-black font-medium py-2 rounded-md hover:bg-neutral-200">
                 Sign Up
               </Button>
             </form>

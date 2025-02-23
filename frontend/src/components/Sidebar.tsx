@@ -3,12 +3,12 @@ import { useCallback, useEffect, useState } from "react";
 import { getAuthTokenFromCookie, handleLogout } from "@/lib/authUtils";
 import toast from "react-hot-toast";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; // Importing Shadcn Popover
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Copy, Edit, LockKeyhole, LogOut, MoreVertical, Trash2 } from "lucide-react";
 
 interface Room {
@@ -17,7 +17,7 @@ interface Room {
 }
 
 interface SidebarProps {
-  setSelectedRoom: (room: Room ) => void;
+  setSelectedRoom: (room: Room) => void;
   selectedRoom: Room | undefined;
 }
 
@@ -26,7 +26,7 @@ const Sidebar = ({ selectedRoom, setSelectedRoom }: SidebarProps) => {
   const [loading, setLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newRoomName, setNewRoomName] = useState("");
-  const [shareableLink, setShareableLink] = useState<string>("");
+  const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
 
   const fetchRooms = useCallback(async () => {
     const authToken = getAuthTokenFromCookie();
@@ -38,101 +38,35 @@ const Sidebar = ({ selectedRoom, setSelectedRoom }: SidebarProps) => {
           },
         });
         setRooms(response.data.rooms);
-        console.log("rooms list", response.data);
       } catch (error) {
-        console.error("Error fetching rooms:", error);
-        toast.error("Failed to fetch rooms");
+        toast.error(`Failed to fetch rooms ${error}`);
       } finally {
         setLoading(false);
       }
     } else {
-      console.error("No authentication token found");
       setLoading(false);
     }
   }, []);
-
-  const handleCreateRoom = async () => {
-    const authToken = getAuthTokenFromCookie();
-    if (!authToken || !newRoomName.trim()) {
-      toast.error("Room name cannot be empty.");
-      return;
-    }
-
-    try {
-      const createResponse = await axios.post(
-        `${BASE_URL}rooms/create/`,
-        { chat_room_name: newRoomName },
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-      console.log(createResponse);
-      const newRoom = createResponse.data;
-      await axios.post(
-        `${BASE_URL}room/join/`,
-        { room_id: newRoom.room_id },
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
-
-      fetchRooms();
-      setIsCreateDialogOpen(false);
-      setSelectedRoom({ roomname: newRoom.room_name, roomid: newRoom.room_id });
-      setNewRoomName("");
-
-      const appUrl = window.location.origin;
-      setShareableLink(`${appUrl}/?room_id=${newRoom.room_id}`);
-      toast.success("Room created successfully!");
-    } catch (error) {
-      console.error("Error creating or joining room:", error);
-      toast.error("Failed to create room");
-    }
-  };
-
-  const handleDeleteRoom = async (roomId: string) => {
-    const authToken = getAuthTokenFromCookie();
-    if (!authToken) return;
-
-    try {
-      await axios.delete(`${BASE_URL}room/delete/${roomId}/`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      fetchRooms();
-      toast.success("Room deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting room:", error);
-      toast.error("Failed to delete room.");
-    }
-  };
 
   useEffect(() => {
     fetchRooms();
   }, [fetchRooms]);
 
   return (
-    <motion.div className="sidebar w-1/5 bg-neutral-800 border-r-neutral-400 h-screen p-4 flex flex-col relative">
-      <div className="flex justify-between items-center mb-4">
-        <span className="text-3xl text-white font-bold">Chats</span>
-
+    <div className="sidebar w-1/5 bg-neutral-900 border-r border-neutral-700 h-screen flex flex-col relative p-3">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-3">
+        <span className="text-2xl text-white font-bold">Shh</span>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <button className="text-white border w-fit rounded-full border-neutral-500 p-2">
-              <Edit />
+            <button className="text-white hover:scale-105 border border-neutral-700 rounded-full p-2 transition-transform">
+              <Edit className="w-4 h-4" />
             </button>
           </DialogTrigger>
-          <DialogContent className="bg-neutral-800 ">
+          <DialogContent className="bg-neutral-800 border-none shadow-md">
             <DialogHeader>
               <DialogTitle className="text-white">Create a new room</DialogTitle>
-              <DialogDescription className="text-neutral-500">
-                Enter a name for your new chat room.
-              </DialogDescription>
+              <DialogDescription className="text-neutral-400">Enter a name for your new chat room.</DialogDescription>
             </DialogHeader>
             <Input
               value={newRoomName}
@@ -143,7 +77,7 @@ const Sidebar = ({ selectedRoom, setSelectedRoom }: SidebarProps) => {
             <DialogFooter>
               <Button
                 variant="outline"
-                className="bg-neutral-800 border hover:bg-black hover:text-white border-neutral-600 text-white"
+                className="bg-neutral-800 border border-neutral-600 text-white hover:bg-neutral-700"
                 onClick={() => setIsCreateDialogOpen(false)}
               >
                 Cancel
@@ -151,7 +85,7 @@ const Sidebar = ({ selectedRoom, setSelectedRoom }: SidebarProps) => {
               <Button
                 variant="default"
                 className="bg-neutral-900 hover:bg-black"
-                onClick={handleCreateRoom}
+                onClick={() => setNewRoomName("")}
               >
                 Create
               </Button>
@@ -160,12 +94,13 @@ const Sidebar = ({ selectedRoom, setSelectedRoom }: SidebarProps) => {
         </Dialog>
       </div>
 
+      {/* Room List */}
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       ) : (
-        <ScrollArea className="flex-1 -mx-4 px-4">
+        <ScrollArea className="flex-1">
           <AnimatePresence>
             {rooms.map((room) => (
               <motion.div
@@ -174,59 +109,62 @@ const Sidebar = ({ selectedRoom, setSelectedRoom }: SidebarProps) => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className={`p-2 flex items-center justify-between cursor-pointer hover:bg-neutral-600 rounded-lg mb-1 transition-colors ${
-                  room.room_name === selectedRoom?.roomname ? "bg-neutral-700 text-neutral-100" : "bg-transparent text-neutral-500"
-                }`}
+                className={`relative flex items-center justify-between px-3 py-3 rounded-lg mb-1 cursor-pointer transition-all
+                  ${room.room_id === selectedRoom?.roomid ? "bg-neutral-700 text-white" : "bg-transparent text-neutral-500 hover:bg-neutral-800"}
+                `}
+                onMouseEnter={() => setHoveredRoom(room.room_id)}
+                onMouseLeave={() => setHoveredRoom(null)}
+                onClick={() => setSelectedRoom({ roomname: room.room_name, roomid: room.room_id })}
               >
-                <div
-                  className="flex items-center flex-1"
-                  onClick={() => setSelectedRoom({ roomname: room.room_name, roomid: room.room_id })}
-                >
-                  <LockKeyhole className="w-4 h-4 mr-2" />
-                  <div className="font-medium text-sm text-neutral-300 truncate">{room.room_name}</div>
+                <div className="flex items-center space-x-2">
+                  <LockKeyhole className="w-4 h-4 text-neutral-400" />
+                  <div className="font-medium text-sm truncate">{room.room_name}</div>
                 </div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="p-2 text-neutral-400 hover:text-white">
-                      <MoreVertical />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="bg-neutral-800 text-neutral-300 w-48 p-2 rounded-lg shadow-lg">
-                    <Button
-                      className="w-full justify-start text-red-500 hover:text-red-700"
-                      variant="ghost"
-                      onClick={() => handleDeleteRoom(room.room_id)}
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" /> Delete Room
-                    </Button>
-                    <Button
-                      className="w-full justify-start text-neutral-400 hover:text-neutral-200"
-                      variant="ghost"
-                      onClick={() => {
-                        const appUrl = window.location.origin;
-                        setShareableLink(`${appUrl}/?room_id=${room.room_id}`);
-                        navigator.clipboard.writeText(shareableLink);
-                        toast.success("Shareable link generated!");
-                      }}
-                    >
-                      <Copy className="w-4 h-4 mr-2" /> Share Link
-                    </Button>
-                  </PopoverContent>
-                </Popover>
+
+                {/* Popover - Show only when hovered */}
+                {(hoveredRoom === room.room_id || selectedRoom?.roomid === room.room_id) && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="text-neutral-400 hover:text-white transition-colors">
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="bg-neutral-800 border border-neutral-700 text-neutral-300 w-40 p-2 rounded-md shadow-lg">
+                      <Button
+                        className="w-full justify-start px-2 py-1 text-xs text-red-500 hover:bg-neutral-700 hover:text-red-400"
+                        variant="ghost"
+                        onClick={() => {}}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" /> Delete Room
+                      </Button>
+                      <Button
+                        className="w-full justify-start px-2 py-1 text-xs text-neutral-300 hover:bg-neutral-700"
+                        variant="ghost"
+                        onClick={() => {
+                          navigator.clipboard.writeText(`${window.location.origin}/?room_id=${room.room_id}`);
+                          toast.success("Shareable link copied!");
+                        }}
+                      >
+                        <Copy className="w-4 h-4 mr-2" /> Share Link
+                      </Button>
+                    </PopoverContent>
+                  </Popover>
+                )}
               </motion.div>
             ))}
           </AnimatePresence>
         </ScrollArea>
       )}
 
+      {/* Logout Button */}
       <Button
         variant="destructive"
-        className="mt-4 mb-2 bg-neutral-600"
+        className="mt-4 mb-2 bg-neutral-700 hover:bg-red-600 transition-all"
         onClick={handleLogout}
       >
         <LogOut className="mr-2 h-4 w-4" /> Logout
       </Button>
-    </motion.div>
+    </div>
   );
 };
 

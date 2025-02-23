@@ -37,12 +37,25 @@ def get_messages(request, room_name):
         messages = Message.objects.filter(chat_room=room_group_name).order_by('timestamp')
         serializer = MessageSerializer(messages, many=True)
 
-        return Response(serializer.data, status=200)
+        # Ensure message format matches WebSocket's expected structure
+        response_data = {
+            "type": "message_history",
+            "messages": [
+                {
+                    "user": msg["user"],
+                    "message": msg["message"],
+                    "timestamp": msg["timestamp"],
+                }
+                for msg in serializer.data
+            ]
+        }
+
+        return Response(response_data, status=200)
     except Exception as e:
         print(f"Error fetching messages: {str(e)}")
         return Response({"error": "Error fetching messages"}, status=400)
 
-
+        
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def send_message(request, room_name):

@@ -1,24 +1,23 @@
-import ChatArea from "./ChatArea";
 import { useEffect, useState } from "react";
-import Sidebar from "./Sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "./AppSidebar";
+import ChatArea from "./ChatArea";
 import { checkAndRedirectIfUnauthenticated } from "@/lib/authUtils";
+import { Room } from "@/types/ChatTypes";
 
-type Room = {
-  roomname: string;
-  roomid: string;
-};
+
 function ChatLayout() {
-  const [selectedRoom, setSelectedRoom] = useState<Room>({ roomname: "", roomid: "" });
+  const [selectedRoom, setSelectedRoom] = useState<Room |null>(null);
 
   useEffect(() => {
-    checkAndRedirectIfUnauthenticated()
+    checkAndRedirectIfUnauthenticated();
   }, []);
 
   return (
-    <div className="flex">
-      <Sidebar selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom} />
+    <SidebarProvider>
+        <AppSidebar selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom} />
         <ChatArea selectedRoom={selectedRoom} />
-    </div>
+    </SidebarProvider>
   );
 }
 
