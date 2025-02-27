@@ -83,6 +83,7 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
               <Edit className="w-4 h-4" />
             </button>
 
+
           </DialogTrigger>
           <DialogContent className="bg-white dark:bg-neutral-800 border-none shadow-md rounded-lg">
             <DialogHeader>
