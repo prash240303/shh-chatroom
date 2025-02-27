@@ -39,7 +39,7 @@
 
 
 import { getAuthTokenFromCookie } from "@/lib/authUtils";
-import { Message } from "@/types/ChatTypes";
+import { Message } from "@/types/chat-types";
 import { useEffect, useRef, useState } from "react";
 
 const MAX_RETRIES = 5; // Maximum retry attempts for WebSocket connection

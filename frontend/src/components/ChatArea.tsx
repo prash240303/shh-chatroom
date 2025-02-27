@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { ChatBubble } from "./ChatBubble";
 import ChatInput from "./ChatInput";
 import { useChatWebSocket } from "@/hooks/useChatWebSocket";
-import { ChatAreaProps, Message } from "@/types/ChatTypes";
+import { ChatAreaProps, Message } from "@/types/chat-types";
 import { SidebarTrigger } from "./ui/sidebar";
 import NoRoomSelected from "./NoRoomSelected";
 import { getMessages } from "@/api/messages";

@@ -173,3 +173,12 @@
   scrollbar-width: thin; /* Thin scrollbar in Firefox */
   scrollbar-color: black transparent; /* Black thumb, transparent track */
 }
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

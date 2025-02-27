@@ -3,7 +3,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import ChatArea from "./ChatArea";
 import { checkAndRedirectIfUnauthenticated } from "@/lib/authUtils";
-import { Room } from "@/types/ChatTypes";
+import { Room } from "@/types/chat-types";
 
 
 function ChatLayout() {
