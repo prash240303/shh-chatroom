@@ -16,10 +16,10 @@ import {
   Edit,
 } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
-import { getAuthTokenFromCookie, handleLogout } from "@/lib/authUtils";
+import { handleLogout } from "@/lib/authUtils";
 import toast from "react-hot-toast";
-import axios from "axios";
 import { useTheme } from "next-themes";
+import { fetchRooms, createRoom, Room } from "@/api/rooms";
 import {
   Popover,
   PopoverContent,
@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/popover";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "./ui/button";
-import { Room } from "@/types/chat-types";
 import {
   Dialog,
   DialogContent,
@@ -37,50 +36,78 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-// import { ScrollArea } from "./ui/scroll-area";
 import { Input } from "./ui/input";
 import { ThemeColorToggle } from "./ThemeColorToggle";
 import { ThemeModeToggle } from "./ThemeModeToggle";
+import { ThemeColors } from "@/types/theme-types";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 interface AppSidebarProps {
-  selectedRoom: Room | null;
-  setSelectedRoom: (room: Room) => void;
+  selectedRoom: {
+    roomId: string;
+    roomname: string;
+  } | null;
+  setSelectedRoom: (room: { roomId: string; roomname: string }) => void;
+  currentColorTheme?: ThemeColors;
+
 }
 
-export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
+export function AppSidebar({ selectedRoom, setSelectedRoom , currentColorTheme = "Zinc" }: AppSidebarProps) {
   const { theme } = useTheme();
-  const [rooms, setRooms] = useState<
-    { room_name: string; created_at: string; room_id: string }[]
-  >([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(false);
   const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
   const [newRoomName, setNewRoomName] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  console.log("curr", currentColorTheme)
 
-  const fetchRooms = useCallback(async () => {
+  const handleCreateRoom = async () => {
+    console.log("Starting room creation process...");
+    if (!newRoomName.trim()) {
+      console.log("Room creation aborted: Empty name");
+      return;
+    }
+
+    try {
+      console.log("Sending create room request:", {
+        roomName: newRoomName.trim(),
+      });
+      const response = await createRoom(newRoomName);
+      console.log("Room creation response:", response);
+
+      await handleFetchRooms();
+      console.log("Room list updated");
+      toast.success("Room created successfully!");
+      setNewRoomName("");
+      setIsCreateDialogOpen(false);
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.error || "Failed to create room";
+      console.error("Room creation error details:", {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: errorMessage,
+      });
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleFetchRooms = useCallback(async () => {
     setLoading(true);
-    const authToken = getAuthTokenFromCookie();
-    if (authToken) {
-      try {
-        const response = await axios.get(`${BASE_URL}rooms/`, {
-          headers: { Authorization: `Bearer ${authToken}` },
-        });
-        setRooms(response.data.rooms);
-  console.log(rooms)
-        
-      } catch (error) {
-        toast.error(`Failed to fetch rooms ${error}`);
-      } finally {
-        setLoading(false);
-      }
+    try {
+      const roomsData = await fetchRooms();
+      setRooms(roomsData);
+      console.log("Fetched rooms:", roomsData);
+    } catch (error: any) {
+      toast.error(`Failed to fetch rooms: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchRooms();
-  }, [fetchRooms]);
+    handleFetchRooms();
+  }, [handleFetchRooms]);
 
   return (
     <Sidebar
@@ -104,18 +131,37 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
             >
               <Edit className="w-4 h-4" />
             </button>
-<<<<<<< Updated upstream
-
-
-=======
->>>>>>> Stashed changes
           </DialogTrigger>
-          <DialogContent className="bg-white dark:bg-neutral-800 border-none shadow-md rounded-lg">
+          <DialogContent
+            className={`${
+              theme === "dark"
+                ? "bg-neutral-900 border-neutral-800"
+                : theme === "hazel"
+                ? "bg-hazel border-hazel-accent"
+                : "bg-white border-neutral-200"
+            } shadow-lg rounded-lg`}
+          >
             <DialogHeader>
-              <DialogTitle className="text-black dark:text-white">
+              <DialogTitle
+                className={`${
+                  theme === "dark"
+                    ? "text-white"
+                    : theme === "hazel"
+                    ? "text-hazel-foreground"
+                    : "text-black"
+                } text-xl font-semibold`}
+              >
                 Create a new room
               </DialogTitle>
-              <DialogDescription className="text-neutral-600 dark:text-neutral-400">
+              <DialogDescription
+                className={`${
+                  theme === "dark"
+                    ? "text-neutral-400"
+                    : theme === "hazel"
+                    ? "text-hazel-muted"
+                    : "text-neutral-600"
+                }`}
+              >
                 Enter a name for your new chat room.
               </DialogDescription>
             </DialogHeader>
@@ -123,23 +169,38 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
               value={newRoomName}
               onChange={(e) => setNewRoomName(e.target.value)}
               placeholder="Enter a room name"
-              className="bg-neutral-100 dark:bg-neutral-800 text-black dark:text-white placeholder-neutral-500 
-               dark:placeholder-neutral-400 border border-neutral-300 dark:border-neutral-600 
-               rounded-md focus:ring-2 focus:ring-neutral-500 dark:focus:ring-neutral-400"
+              className={`${
+                theme === "dark"
+                  ? "bg-neutral-800 text-white border-neutral-700 focus:border-neutral-600 placeholder-neutral-500"
+                  : theme === "hazel"
+                  ? "bg-hazel-light text-hazel-foreground border-hazel-accent focus:border-hazel-primary placeholder-hazel-muted"
+                  : "bg-neutral-50 text-black border-neutral-300 focus:border-neutral-400 placeholder-neutral-500"
+              } rounded-md p-2 w-full transition-colors`}
             />
-            <DialogFooter>
+            <DialogFooter className="mt-4 space-x-2">
               <Button
                 variant="outline"
-                className="bg-neutral-200 dark:bg-neutral-800 border border-neutral-400 dark:border-neutral-600 
-                 text-black dark:text-white hover:bg-neutral-300 dark:hover:bg-neutral-700"
                 onClick={() => setIsCreateDialogOpen(false)}
+                className={`${
+                  theme === "dark"
+                    ? "bg-neutral-800 text-white border-neutral-700 hover:bg-neutral-700"
+                    : theme === "hazel"
+                    ? "bg-hazel-light text-hazel-foreground border-hazel-accent hover:bg-hazel-accent"
+                    : "bg-white text-black border-neutral-300 hover:bg-neutral-100"
+                } transition-colors`}
               >
                 Cancel
               </Button>
               <Button
                 variant="default"
-                className="bg-neutral-900 dark:bg-black text-white hover:bg-neutral-800 dark:hover:bg-neutral-700"
-                onClick={() => setNewRoomName("")}
+                onClick={() => handleCreateRoom()}
+                className={`${
+                  theme === "dark"
+                    ? "bg-primary text-white hover:bg-primary/90"
+                    : theme === "hazel"
+                    ? "bg-hazel-primary text-white hover:bg-hazel-primary/90"
+                    : "bg-primary text-white hover:bg-primary/90"
+                } transition-colors`}
               >
                 Create
               </Button>
@@ -163,21 +224,46 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ duration: 0.3 }}
                       className={`relative flex items-center justify-between px-3 py-3 rounded-lg mb-1 cursor-pointer transition-all
-                        ${selectedRoom?.roomId === room.room_id ? "bg-primary text-white" : "hover:bg-muted hover:text-neutral-900"}
+                        ${
+                          selectedRoom?.roomId === room.room_id
+                            ? theme === "dark"
+                              ? "bg-primary text-white"
+                              : theme === "hazel"
+                              ? "bg-hazel-primary text-white"
+                              : "bg-primary text-white"
+                            : "hover:bg-muted hover:text-neutral-900"
+                        }
                       `}
                       onClick={() =>
                         setSelectedRoom({
-                          roomname: room.room_name,
                           roomId: room.room_id,
+                          roomname: room.room_name,
                         })
-                      } 
+                      }
                       onMouseEnter={() => setHoveredRoom(room.room_id)}
                       onMouseLeave={() => setHoveredRoom(null)}
                     >
                       <div className="flex gap-1 justify-center font-semibold items-center">
-                        <LockKeyhole className="mr-2
-                         dark:text-primary  w-4 h-4" />
-                        <span className="dark:text-secondary-foreground">{room.room_name}</span>
+                        <LockKeyhole
+                          className={`mr-2 w-4 h-4 ${
+                            selectedRoom?.roomId === room.room_id
+                              ? "text-white"
+                              : theme === "dark"
+                              ? "text-primary"
+                              : "text-primary"
+                          }`}
+                        />
+                        <span
+                          className={
+                            selectedRoom?.roomId === room.room_id
+                              ? theme === "dark" && currentColorTheme === "Zinc"
+                                ? "text-red-600"
+                                : "text-white"
+                              : "text-secondary-foreground"
+                          }
+                        >
+                          {room.room_name}
+                        </span>
                       </div>
                       {/* Popover Menu for Options */}
                       {(hoveredRoom === room.room_id ||

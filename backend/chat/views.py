@@ -114,7 +114,7 @@ def get_user_rooms(request):
 @permission_classes([IsAuthenticated])
 def create_room(request):
     """
-    Create a new chat room.
+    Create a new chat room and add the creator as a participant.
     """
     try:
         chat_room_name = request.data.get('chat_room_name')
@@ -124,13 +124,18 @@ def create_room(request):
         if Rooms.objects.filter(chat_room_name=chat_room_name).exists():
             return Response({"error": "A room with this name already exists"}, status=400)
 
+        # Create the room
         room = Rooms.objects.create(chat_room_name=chat_room_name)
+        
+        # Add the creator as a participant
+        RoomParticipant.objects.create(room=room, user=request.user)
+        
         return Response({"room_id": str(room.room_id), "chat_room_name": room.chat_room_name}, status=201)
     except Exception as e:
         print(f"Error creating room: {e}")
         return Response({"error": "Error creating room"}, status=500)
-
-
+    
+    
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def join_room(request):

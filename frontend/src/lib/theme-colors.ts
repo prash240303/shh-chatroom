@@ -214,7 +214,7 @@ const themes = {
         primary: "0 0% 98%",
         primaryForeground: "240 5.9% 10%",
         secondary: "240 3.7% 15.9%",
-        secondaryForeground: "0 0% 98%",
+        secondaryForeground: "240 5.9% 10%",
         muted: "240 3.7% 15.9%",
         mutedForeground: "240 5% 64.9%",
         accent: "240 3.7% 15.9%",

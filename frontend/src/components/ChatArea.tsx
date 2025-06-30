@@ -8,37 +8,42 @@ import NoRoomSelected from "./NoRoomSelected";
 import { getMessages } from "@/api/messages";
 
 const ChatArea = ({ selectedRoom }: ChatAreaProps) => {
-  const { messages: socketMessages, socketRef } = useChatWebSocket(selectedRoom ? { ...selectedRoom, roomid: selectedRoom.roomId } : undefined);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { messages, socketRef } = useChatWebSocket(
+    selectedRoom ? { roomname: selectedRoom.roomname, roomid: selectedRoom.roomId } : undefined
+  );
+  
   const [message, setMessage] = useState<string>("");
-  const currentUserEmail = useMemo(() => localStorage.getItem("userEmailKey")?.trim().toLowerCase() || "", []);
+  const currentUserEmail = useMemo(
+    () => localStorage.getItem("userEmailKey")?.trim().toLowerCase() || "",
+    []
+  );
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   console.log("Selected Room:", selectedRoom);
 
   // Fetch message history when selectedRoom changes
-  useEffect(() => {
-    const fetchMessages = async () => {
-      if (!selectedRoom) {
-        console.log("No room selected, skipping fetch.");
-        return;
-      }
+  // useEffect(() => {
+  //   const fetchMessages = async () => {
+  //     if (!selectedRoom) {
+  //       console.log("No room selected, skipping fetch.");
+  //       return;
+  //     }
 
-      console.log(`Fetching messages for room: ${selectedRoom?.roomId}`);
-      const historyMessages = await getMessages(selectedRoom?.roomId);
-      console.log("Fetched messages from API:", historyMessages);
+  //     console.log(`Fetching messages for room: ${selectedRoom?.roomId}`);
+  //     const historyMessages = await getMessages(selectedRoom?.roomId);
+  //     console.log("Fetched messages from API:", historyMessages);
 
-      setMessages(historyMessages);
-    };
+  //     setMessages(historyMessages);
+  //   };
 
-    fetchMessages();
-  }, [selectedRoom]);
+  //   fetchMessages();
+  // }, [selectedRoom]);
 
   // Update messages when WebSocket messages change
   useEffect(() => {
-    console.log("New WebSocket messages received:", socketMessages);
-    setMessages((prev) => [...prev, ...socketMessages]);
-  }, [socketMessages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+  
 
   useEffect(() => {
     console.log("Updated messages:", messages);
@@ -46,19 +51,27 @@ const ChatArea = ({ selectedRoom }: ChatAreaProps) => {
   }, [messages]);
 
   const sendMessage = () => {
-    if (message.trim() && selectedRoom && socketRef.current) {
+    if (
+      message.trim() &&
+      selectedRoom &&
+      socketRef.current &&
+      socketRef.current.readyState === WebSocket.OPEN
+    ) {
       const newMessage = {
         type: "message",
         user: currentUserEmail,
         message,
         timestamp: new Date().toISOString(),
       };
-
+  
       console.log("Sending message:", newMessage);
       socketRef.current.send(JSON.stringify(newMessage));
       setMessage("");
+    } else {
+      console.warn("WebSocket is not open. Message not sent.");
     }
   };
+  
 
   return (
     <div className="chat-area relative w-full h-screen border-l border-neutral-300 bg-neutral-100 text-black dark:border-neutral-700 dark:bg-neutral-900 dark:text-white flex flex-col place-items-center transition-colors duration-300">
@@ -70,14 +83,17 @@ const ChatArea = ({ selectedRoom }: ChatAreaProps) => {
         <>
           {/* Header */}
           <div className="header w-full text-center p-4">
-            <h1 className="text-lg text-white dark:text-neutral-900 font-bold">{selectedRoom?.roomname}</h1>
+            <h1 className="text-lg text-white dark:text-neutral-900 font-bold">
+              {selectedRoom?.roomname}
+            </h1>
           </div>
 
           {/* Messages */}
           <div className="messages max-w-5xl flex-1 overflow-y-auto p-4 w-full">
             {messages.map((msg: Message, index: number) => {
               const isSender = msg.user.toLowerCase() === currentUserEmail;
-              const isFirstMessageInGroup = index === 0 || messages[index - 1]?.user !== msg.user;
+              const isFirstMessageInGroup =
+                index === 0 || messages[index - 1]?.user !== msg.user;
 
               return (
                 <ChatBubble
@@ -95,7 +111,11 @@ const ChatArea = ({ selectedRoom }: ChatAreaProps) => {
           </div>
 
           {/* Input Field */}
-          <ChatInput message={message} setMessage={setMessage} sendMessage={sendMessage} />
+          <ChatInput
+            message={message}
+            setMessage={setMessage}
+            sendMessage={sendMessage}
+          />
         </>
       ) : (
         <NoRoomSelected />
