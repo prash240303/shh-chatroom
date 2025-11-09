@@ -52,7 +52,7 @@ interface AppSidebarProps {
 
 }
 
-export function AppSidebar({ selectedRoom, setSelectedRoom , currentColorTheme = "Zinc" }: AppSidebarProps) {
+export function AppSidebar({ selectedRoom, setSelectedRoom, currentColorTheme = "Zinc" }: AppSidebarProps) {
   const { theme } = useTheme();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(false);
@@ -111,13 +111,12 @@ export function AppSidebar({ selectedRoom, setSelectedRoom , currentColorTheme =
 
   return (
     <Sidebar
-      className={`shh ${
-        theme === "dark"
-          ? "bg-neutral-900 text-white"
-          : theme === "hazel"
+      className={`shh ${theme === "dark"
+        ? "bg-neutral-900 text-white"
+        : theme === "hazel"
           ? "bg-hazel text-black"
           : "bg-neutral-100 text-black"
-      }`}
+        }`}
     >
       <SidebarHeader className="flex flex-row w-full items-center justify-between pt-4 px-4 py-2">
         <span className="font-semibold text-3xl text-primary">Shh</span>
@@ -125,43 +124,19 @@ export function AppSidebar({ selectedRoom, setSelectedRoom , currentColorTheme =
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <button
-              className="text-neutral-400 inline-block w-fit hover:scale-110 
-  border border-neutral-500 dark:border-neutral-700 rounded-full p-2 transition-all  dark:text-white
-  hover:bg-primary-foreground dark:hover:bg-neutral-800"
+              className="text-muted-foreground inline-block w-fit hover:scale-110 
+            border border-border rounded-full p-2 transition-all 
+            hover:bg-accent hover:text-accent-foreground"
             >
               <Edit className="w-4 h-4" />
             </button>
           </DialogTrigger>
-          <DialogContent
-            className={`${
-              theme === "dark"
-                ? "bg-neutral-900 border-neutral-800"
-                : theme === "hazel"
-                ? "bg-hazel border-hazel-accent"
-                : "bg-white border-neutral-200"
-            } shadow-lg rounded-lg`}
-          >
+          <DialogContent className="bg-card border-border shadow-lg">
             <DialogHeader>
-              <DialogTitle
-                className={`${
-                  theme === "dark"
-                    ? "text-white"
-                    : theme === "hazel"
-                    ? "text-hazel-foreground"
-                    : "text-black"
-                } text-xl font-semibold`}
-              >
+              <DialogTitle className="text-card-foreground text-xl font-semibold">
                 Create a new room
               </DialogTitle>
-              <DialogDescription
-                className={`${
-                  theme === "dark"
-                    ? "text-neutral-400"
-                    : theme === "hazel"
-                    ? "text-hazel-muted"
-                    : "text-neutral-600"
-                }`}
-              >
+              <DialogDescription className="text-muted-foreground">
                 Enter a name for your new chat room.
               </DialogDescription>
             </DialogHeader>
@@ -169,38 +144,24 @@ export function AppSidebar({ selectedRoom, setSelectedRoom , currentColorTheme =
               value={newRoomName}
               onChange={(e) => setNewRoomName(e.target.value)}
               placeholder="Enter a room name"
-              className={`${
-                theme === "dark"
-                  ? "bg-neutral-800 text-white border-neutral-700 focus:border-neutral-600 placeholder-neutral-500"
-                  : theme === "hazel"
-                  ? "bg-hazel-light text-hazel-foreground border-hazel-accent focus:border-hazel-primary placeholder-hazel-muted"
-                  : "bg-neutral-50 text-black border-neutral-300 focus:border-neutral-400 placeholder-neutral-500"
-              } rounded-md p-2 w-full transition-colors`}
+              className="bg-input text-foreground border-border 
+            focus:border-ring focus:ring-ring placeholder:text-muted-foreground 
+            transition-colors"
             />
             <DialogFooter className="mt-4 space-x-2">
               <Button
                 variant="outline"
                 onClick={() => setIsCreateDialogOpen(false)}
-                className={`${
-                  theme === "dark"
-                    ? "bg-neutral-800 text-white border-neutral-700 hover:bg-neutral-700"
-                    : theme === "hazel"
-                    ? "bg-hazel-light text-hazel-foreground border-hazel-accent hover:bg-hazel-accent"
-                    : "bg-white text-black border-neutral-300 hover:bg-neutral-100"
-                } transition-colors`}
+                className="bg-secondary text-secondary-foreground border-border 
+              hover:bg-secondary/80 transition-colors"
               >
                 Cancel
               </Button>
               <Button
                 variant="default"
                 onClick={() => handleCreateRoom()}
-                className={`${
-                  theme === "dark"
-                    ? "bg-primary text-white hover:bg-primary/90"
-                    : theme === "hazel"
-                    ? "bg-hazel-primary text-white hover:bg-hazel-primary/90"
-                    : "bg-primary text-white hover:bg-primary/90"
-                } transition-colors`}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 
+              transition-colors"
               >
                 Create
               </Button>
@@ -224,14 +185,13 @@ export function AppSidebar({ selectedRoom, setSelectedRoom , currentColorTheme =
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ duration: 0.3 }}
                       className={`relative flex items-center justify-between px-3 py-3 rounded-lg mb-1 cursor-pointer transition-all
-                        ${
-                          selectedRoom?.roomId === room.room_id
-                            ? theme === "dark"
-                              ? "bg-primary text-white"
-                              : theme === "hazel"
+                        ${selectedRoom?.roomId === room.room_id
+                          ? theme === "dark"
+                            ? "bg-primary text-white"
+                            : theme === "hazel"
                               ? "bg-hazel-primary text-white"
                               : "bg-primary text-white"
-                            : "hover:bg-muted hover:text-neutral-900"
+                          : "hover:bg-muted hover:text-neutral-900"
                         }
                       `}
                       onClick={() =>
@@ -245,13 +205,12 @@ export function AppSidebar({ selectedRoom, setSelectedRoom , currentColorTheme =
                     >
                       <div className="flex gap-1 justify-center font-semibold items-center">
                         <LockKeyhole
-                          className={`mr-2 w-4 h-4 ${
-                            selectedRoom?.roomId === room.room_id
-                              ? "text-white"
-                              : theme === "dark"
+                          className={`mr-2 w-4 h-4 ${selectedRoom?.roomId === room.room_id
+                            ? "text-white"
+                            : theme === "dark"
                               ? "text-primary"
                               : "text-primary"
-                          }`}
+                            }`}
                         />
                         <span
                           className={
@@ -268,33 +227,33 @@ export function AppSidebar({ selectedRoom, setSelectedRoom , currentColorTheme =
                       {/* Popover Menu for Options */}
                       {(hoveredRoom === room.room_id ||
                         selectedRoom?.roomId === room.room_id) && (
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button className="text-neutral-400 hover:text-white transition-colors">
-                              <MoreVertical className="w-4 h-4" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent className="bg-neutral-800 space-y-0 border border-neutral-700 text-neutral-300 w-40 p-1 rounded-md shadow-lg">
-                            <button
-                              className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-red-500 hover:bg-neutral-700 hover:text-red-400"
-                              onClick={() => {}}
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" /> Delete Room
-                            </button>
-                            <button
-                              className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-700"
-                              onClick={() => {
-                                navigator.clipboard.writeText(
-                                  `${window.location.origin}/?room_id=${room.room_id}`
-                                );
-                                toast.success("Shareable link copied!");
-                              }}
-                            >
-                              <Copy className="w-4 h-4 mr-2" /> Share Link
-                            </button>
-                          </PopoverContent>
-                        </Popover>
-                      )}
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button className="text-neutral-400 hover:text-white transition-colors">
+                                <MoreVertical className="w-4 h-4" />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="bg-neutral-800 space-y-0 border border-neutral-700 text-neutral-300 w-40 p-1 rounded-md shadow-lg">
+                              <button
+                                className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-red-500 hover:bg-neutral-700 hover:text-red-400"
+                                onClick={() => { }}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" /> Delete Room
+                              </button>
+                              <button
+                                className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-700"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(
+                                    `${window.location.origin}/?room_id=${room.room_id}`
+                                  );
+                                  toast.success("Shareable link copied!");
+                                }}
+                              >
+                                <Copy className="w-4 h-4 mr-2" /> Share Link
+                              </button>
+                            </PopoverContent>
+                          </Popover>
+                        )}
                     </motion.div>
                   ))}
                 </AnimatePresence>
@@ -302,7 +261,7 @@ export function AppSidebar({ selectedRoom, setSelectedRoom , currentColorTheme =
             )}
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroup>
+        <SidebarGroup className="flex flex-row gap-2 !important">
           <ThemeColorToggle />
           <ThemeModeToggle />
         </SidebarGroup>

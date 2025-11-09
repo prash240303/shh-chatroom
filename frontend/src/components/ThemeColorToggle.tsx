@@ -22,15 +22,19 @@ export function ThemeColorToggle() {
 
   return (
     <Select value={themeColor} onValueChange={(value) => setThemeColor(value as ThemeColors)}>
-      <SelectTrigger className="w-[180px] ring-offset-transparent focus:ring-transparent">
+      <SelectTrigger className="flex-1 text-primary ring-primary/50 ring-offset-background focus:ring-primary border-border hover:border-primary/50 transition-colors">
         <SelectValue placeholder="Select Color" />
       </SelectTrigger>
-      <SelectContent className="border-muted">
+      <SelectContent className="border-border bg-popover">
         {availableThemeColors.map(({ name, light, dark }) => (
-          <SelectItem key={name} value={name}>
+          <SelectItem 
+            key={name} 
+            value={name}
+            className="focus:bg-accent focus:text-accent-foreground cursor-pointer"
+          >
             <div className="flex items-center space-x-3">
-              <div className={cn("rounded-full w-[20px] h-[20px]", currentTheme === "light" ? light : dark)} />
-              <div className="text-sm">{name}</div>
+              <div className={cn("rounded-full w-[20px] h-[20px] border-2 border-border", currentTheme === "light" ? light : dark)} />
+              <div className="text-sm text-foreground">{name}</div>
             </div>
           </SelectItem>
         ))}
@@ -38,4 +42,3 @@ export function ThemeColorToggle() {
     </Select>
   )
 }
-
