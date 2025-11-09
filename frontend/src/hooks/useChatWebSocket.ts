@@ -22,6 +22,7 @@ export const useChatWebSocket = (selectedRoom?: {
   
     const token = getAuthTokenFromCookie();
     const socketUrl = `ws://localhost:8000/ws/chat/${selectedRoom.roomid}/?token=${token}`;
+    console.log("websocket url", socketUrl)
     const socket = new WebSocket(socketUrl);
     socketRef.current = socket;
   

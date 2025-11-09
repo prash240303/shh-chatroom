@@ -34,5 +34,5 @@ Twisted==24.11.0
 txaio==23.1.1
 typing_extensions==4.12.2
 tzdata==2025.1
-unicorn==2.1.3
+unicorn
 zope.interface==7.2

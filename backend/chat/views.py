@@ -85,7 +85,6 @@ def send_message(request, room_name):
         print("Error sending message:", str(e))
         return Response({"error": "Error sending message"}, status=500)
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_rooms(request):
@@ -104,12 +103,18 @@ def get_user_rooms(request):
             for participant in participant_rooms
         ]
 
-        return Response({"rooms": rooms_data}, status=200)
+        # Return a clear response even when there are no rooms
+        return Response({
+            "rooms": rooms_data,
+            "count": len(rooms_data),
+            "message": "No rooms found" if len(rooms_data) == 0 else "Rooms fetched successfully"
+        }, status=200)
+        
     except Exception as e:
         print(f"Error fetching user rooms: {str(e)}")
         return Response({"error": "Error fetching user rooms"}, status=400)
 
-
+        
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_room(request):
