@@ -1,9 +1,10 @@
 from django.db import models
 from django.conf import settings  
 import uuid
+
 class Message(models.Model):
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,  # Refer to the custom user model
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='messages'
     )
@@ -19,12 +20,13 @@ class Message(models.Model):
 
 
 class Rooms(models.Model):
-    room_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)  # Unique room ID for sharing
+    room_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     chat_room_name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.chat_room_name} ({self.room_id})"
+
 
 class RoomParticipant(models.Model):
     room = models.ForeignKey(Rooms, related_name="participants", on_delete=models.CASCADE)
@@ -35,5 +37,8 @@ class RoomParticipant(models.Model):
     )
     joined_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ['room', 'user']  # Prevent duplicate participants
+
     def __str__(self):
-        return f"{self.user.username} in {self.room.chat_room_name}"
+        return f"{self.user.email} in {self.room.chat_room_name}"

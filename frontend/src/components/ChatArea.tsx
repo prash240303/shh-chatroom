@@ -88,7 +88,7 @@ const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
               key={`${msg.timestamp}-${index}`}
               message={msg.message}
               isSender={isSender}
-              userName={msg.user}
+              userName={msg.username}
               timestamp={new Date(msg.timestamp)}
               avatarUrl="/"
               isFirstMessageInGroup={isFirstMessageInGroup}

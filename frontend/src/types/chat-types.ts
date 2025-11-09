@@ -1,5 +1,6 @@
 interface Message {
   user: string;
+  username:string;
   message: string;
   timestamp: string;
 }
