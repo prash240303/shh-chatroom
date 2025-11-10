@@ -119,17 +119,16 @@ export function AppSidebar({ selectedRoom, setSelectedRoom, currentColorTheme = 
         }`}
     >
       <SidebarHeader className="flex flex-row w-full items-center justify-between pt-4 px-4 py-2">
-        <span className="font-semibold text-3xl text-primary">Shh</span>
+        <span className="font-semibold text-3xl shh-bold text-primary">Shh</span>
 
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <button
-              className="text-muted-foreground inline-block w-fit hover:scale-110 
-            border border-border rounded-full p-2 transition-all 
-            hover:bg-accent hover:text-accent-foreground"
+              className=" border p-3 rounded-full text-primary hover:bg-primary/10 dark:hover:bg-primary/10 bg-secondary dark:bg-black border-primary/20 "
             >
-              <Edit className="w-4 h-4" />
+              <Edit className="w-5 h-5" />
             </button>
+
           </DialogTrigger>
           <DialogContent className="bg-card border-border shadow-lg">
             <DialogHeader>
@@ -160,7 +159,7 @@ export function AppSidebar({ selectedRoom, setSelectedRoom, currentColorTheme = 
               <Button
                 variant="default"
                 onClick={() => handleCreateRoom()}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 
+                className="bg-primary text-white hover:bg-primary/90 
               transition-colors"
               >
                 Create
