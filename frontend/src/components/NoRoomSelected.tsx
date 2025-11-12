@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "./ui/input";
 import { useState } from 'react';
 import { Button } from './ui/button';
+import { Logo } from "../../public/Logo"
 
 const NoRoomSelected = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -10,23 +11,9 @@ const NoRoomSelected = () => {
 
   return (
     <div className="w-full shh my-auto max-w-md rounded-3xl p-8 space-y-6 bg-card text-card-foreground border border-border transition-colors">
-      <div className="mx-auto w-[100px] h-[100px]">
+      <div className="mx-auto w-[100px] text-primary h-[100px]">
         {/* Light mode logo */}
-        <img
-          src="/LogoLight.svg"
-          className="block dark:hidden"
-          width={100}
-          height={100}
-          alt="Light Mode Logo"
-        />
-        {/* Dark mode logo */}
-        <img
-          src="/LogoDark.svg"
-          className="hidden dark:block"
-          width={100}
-          height={100}
-          alt="Dark Mode Logo"
-        />
+        <Logo />
       </div>
 
       <div className="space-y-3">

@@ -199,7 +199,7 @@ const themes = {
       secondaryForeground: "240 5.9% 10%",
       muted: "240 4.8% 95.9%",
       mutedForeground: "240 3.8% 46.1%",
-      accent: "240 4.8% 92%", // light neutral accent
+      accent: "240 4.8% 95.9%", // light neutral accent
       accentForeground: "240 5.9% 15%",
       destructive: "0 84.2% 60.2%",
       destructiveForeground: "0 0% 98%",
@@ -209,30 +209,30 @@ const themes = {
       radius: "0.5rem",
     },
     dark: {
-      background: "240 10% 3.9%",
-      foreground: "0 0% 98%",
-      card: "240 10% 3.9%",
+      background: "240 10% 3.9%",        // Deepest dark
+      foreground: "0 0% 98%",            // Bright white text
+      card: "240 8% 8%",                 // Slightly elevated dark
       cardForeground: "0 0% 98%",
-      popover: "240 10% 3.9%",
+      popover: "240 9% 6%",              // Between background and card
       popoverForeground: "0 0% 98%",
-      primary: "0 0% 98%",
+      primary: "0 0% 98%",               // Bright accent
       primaryForeground: "240 5.9% 10%",
-      secondary: "240 3.7% 15.9%",
-      secondaryForeground: "240 5.9% 10%",
-      muted: "240 3.7% 15.9%",
+      secondary: "240 5% 18%",           // Medium-dark gray
+      secondaryForeground: "0 0% 98%",
+      muted: "240 4% 12%",               // Subtle dark gray
       mutedForeground: "240 5% 64.9%",
-      accent: "240 3.7% 25%",
+      accent: "240 6% 22%",              // Lighter dark for hover states
       accentForeground: "0 0% 98%",
       destructive: "0 62.8% 30.6%",
       destructiveForeground: "0 0% 98%",
-      border: "240 3.7% 15.9%",
-      input: "240 3.7% 15.9%",
+      border: "240 4% 16%",              // Visible but subtle borders
+      input: "240 5% 14%",               // Input field background
       ring: "240 4.9% 83.9%",
     },
   },
 };
 
-export default function setGlobalColorTheme(
+export function setGlobalColorTheme(
   themeMode: "light" | "dark",
   color: ThemeColors,
 ) {
@@ -241,4 +241,12 @@ export default function setGlobalColorTheme(
   for (const key in theme) {
     document.documentElement.style.setProperty(`--${key}`, theme[key]);
   }
+  
+  // Store the current color theme
+  localStorage.setItem('colorTheme', color);
+}
+
+export function getGlobalColorTheme(): ThemeColors | null {
+  const stored = localStorage.getItem('colorTheme');
+  return (stored as ThemeColors) || null;
 }

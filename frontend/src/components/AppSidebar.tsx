@@ -39,7 +39,7 @@ import {
 import { Input } from "./ui/input";
 import { ThemeColorToggle } from "./ThemeColorToggle";
 import { ThemeModeToggle } from "./ThemeModeToggle";
-import { ThemeColors } from "@/types/theme-types";
+import { getGlobalColorTheme } from "@/lib/theme-colors";
 
 
 interface AppSidebarProps {
@@ -48,17 +48,17 @@ interface AppSidebarProps {
     roomname: string;
   } | null;
   setSelectedRoom: (room: { roomId: string; roomname: string }) => void;
-  currentColorTheme?: ThemeColors;
-
 }
 
-export function AppSidebar({ selectedRoom, setSelectedRoom, currentColorTheme = "Zinc" }: AppSidebarProps) {
+export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
   const { theme } = useTheme();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(false);
   const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
   const [newRoomName, setNewRoomName] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [currentColorTheme, setCurrentColorTheme] = useState(getGlobalColorTheme());
+
   console.log("curr", currentColorTheme)
 
   const handleCreateRoom = async () => {
@@ -109,15 +109,9 @@ export function AppSidebar({ selectedRoom, setSelectedRoom, currentColorTheme = 
     handleFetchRooms();
   }, [handleFetchRooms]);
 
+  console.log("theme", currentColorTheme)
   return (
-    <Sidebar
-      className={`shh ${theme === "dark"
-        ? "bg-neutral-900 text-white"
-        : theme === "hazel"
-          ? "bg-hazel text-black"
-          : "bg-neutral-100 text-black"
-        }`}
-    >
+    <Sidebar className="shh">
       <SidebarHeader className="flex flex-row w-full items-center justify-between pt-4 px-4 py-2">
         <span className="font-semibold text-3xl shh-bold text-primary">Shh</span>
 
@@ -185,12 +179,10 @@ export function AppSidebar({ selectedRoom, setSelectedRoom, currentColorTheme = 
                       transition={{ duration: 0.3 }}
                       className={`relative flex items-center justify-between px-3 py-3 rounded-lg mb-1 cursor-pointer transition-all
                         ${selectedRoom?.roomId === room.room_id
-                          ? theme === "dark"
-                            ? "bg-primary text-white"
-                            : theme === "hazel"
-                              ? "bg-hazel-primary text-white"
-                              : "bg-primary text-white"
-                          : "hover:bg-muted hover:text-neutral-900"
+                          ? currentColorTheme === "Zinc"
+                            ? "bg-primary dark:bg-secondary text-button"
+                            : "bg-primary text-white hover:bg-primary hover:text-neutral-900"
+                          : "hover:bg-primary/10"
                         }
                       `}
                       onClick={() =>
@@ -228,19 +220,19 @@ export function AppSidebar({ selectedRoom, setSelectedRoom, currentColorTheme = 
                         selectedRoom?.roomId === room.room_id) && (
                           <Popover>
                             <PopoverTrigger asChild>
-                              <button className="text-neutral-400 hover:text-white transition-colors">
+                              <button className="text-neutral-400 hover:text-neutral-300 transition-colors">
                                 <MoreVertical className="w-4 h-4" />
                               </button>
                             </PopoverTrigger>
-                            <PopoverContent className="bg-neutral-800 space-y-0 border border-neutral-700 text-neutral-300 w-40 p-1 rounded-md shadow-lg">
+                            <PopoverContent className="bg-neutral-800 space-y-0 border border-neutral-700 w-40 p-1 rounded-md shadow-lg">
                               <button
-                                className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-red-500 hover:bg-neutral-700 hover:text-red-400"
+                                className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-red-400 hover:bg-neutral-700 hover:text-red-300"
                                 onClick={() => { }}
                               >
                                 <Trash2 className="w-4 h-4 mr-2" /> Delete Room
                               </button>
                               <button
-                                className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-700"
+                                className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-700 hover:text-neutral-200"
                                 onClick={() => {
                                   navigator.clipboard.writeText(
                                     `${window.location.origin}/?room_id=${room.room_id}`
@@ -261,7 +253,10 @@ export function AppSidebar({ selectedRoom, setSelectedRoom, currentColorTheme = 
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup className="flex flex-row gap-2 !important">
-          <ThemeColorToggle />
+          <ThemeColorToggle onThemeChange={(newTheme) => {
+            console.log('Theme changed to:', newTheme)
+            setCurrentColorTheme(newTheme)
+          }} />
           <ThemeModeToggle />
         </SidebarGroup>
       </SidebarContent>

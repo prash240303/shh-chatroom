@@ -1,57 +1,34 @@
-import { useState, useEffect } from "react";
-import toast from "react-hot-toast";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
-import {  isAuthTokenValid } from "@/lib/authUtils";
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
+import toast from "react-hot-toast"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { useLocation, useNavigate } from "react-router-dom"
+import { Logo } from "../../public/Logo"
+
+const BASE_URL = import.meta.env.VITE_BASE_URL
 
 export default function Login() {
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
-  });
-  const location = useLocation();
-  const navigate = useNavigate();
-  const searchParams = new URLSearchParams(location.search);
-  
-
-  useEffect(() => {
-    const token = getCookie("token");
-    if (token) {
-      if (isAuthTokenValid(token)) {
-        console.log("")
-        const params = new URLSearchParams(window.location.search);
-        const room_id = params.get("room_id");
-        if (room_id) {
-          axios
-            .post(`${BASE_URL}room/join/`, { room_id: room_id }, {
-              headers: { Authorization: `Bearer ${token}` },
-            })
-            .catch(() => {
-              toast.error("Failed to join the room.");
-            });
-        }
-      } 
-      else {
-        console.log("hi")
-      }
-    }
-    else{
-      navigate("/login")
-    }
-  }, [location]);
-
+    password: "",
+  })
+  const [isLoading, setIsLoading] = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const searchParams = new URLSearchParams(location.search)
 
   function getCookie(name: string) {
-    const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
-    return match ? match[2] : null;
+    const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`))
+    return match ? match[2] : null
   }
 
-
   async function handleFormSubmission(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+    e.preventDefault()
+    setIsLoading(true)
 
     try {
       const response = await fetch(`${BASE_URL}login/`, {
@@ -60,23 +37,23 @@ export default function Login() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (!response.ok) {
-        toast.error(data?.detail || "Invalid email or password. Please try again.");
+        toast.error(data?.detail || "Invalid email or password. Please try again.")
       } else {
-        // store the email  for chat purposes 
-        localStorage.setItem('userEmailKey', formData.email);
-        
-        const token = data.token;
-        document.cookie = `token=${token}; path=/`;
+        // store the email  for chat purposes
+        localStorage.setItem("userEmailKey", formData.email)
+
+        const token = data.token
+        document.cookie = `token=${token}; path=/`
         console.log("token ", token)
-        toast.success("Login successful!");
-        
-        const roomId = searchParams.get("room_id");
-        console.log("checking if room id is present",roomId)
+        toast.success("Login successful!")
+
+        const roomId = searchParams.get("room_id")
+        console.log("checking if room id is present", roomId)
         if (roomId) {
           try {
             await fetch(`${BASE_URL}room/join/`, {
@@ -86,106 +63,137 @@ export default function Login() {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({ room_id: roomId }),
-            });
-            toast.success("Joined the room successfully!");
+            })
+            toast.success("Joined the room successfully!")
           } catch (error) {
-            console.error("Error joining room:", error);
-            toast.error("Failed to join the room.");
+            console.error("Error joining room:", error)
+            toast.error("Failed to join the room.")
           }
         }
-        navigate("/");
+        navigate("/")
       }
     } catch (error) {
-      toast.error("Something went wrong. Please try again later.");
-      console.error("Error:", error);
+      toast.error("Something went wrong. Please try again later.")
+      console.error("Error:", error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
-
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="flex min-h-screen">
-        <div className="hidden lg:flex lg:w-1/2 p-12 justify-center flex-col bg-neutral-900 items-center">
-          <span className="w-[64px] h-[64px] bg-neutral-600 rounded-[15px] border border-fill flex items-center justify-center mx-auto text-foreground mb-4">
-            <svg
-              height="34"
-              viewBox="0 0 90 73"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-            </svg>
-          </span>
-          <div className="space-y-4 pt-4 max-w-72 text-center">
-            <blockquote className="text-3xl font-bold leading-normal">
-              Welcome back to your private chat
-            </blockquote>
-          </div>
-        </div>
+        <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 bg-gradient-to-br from-primary/10 via-background to-background border-r border-border">
+          <div />
 
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-6">
-          <a
-            href="/register"
-            className="text-sm absolute right-10 top-10 text-neutral-400 hover:text-white transition-colors"
-          >
-            Register
-          </a>
+          <div className="space-y-6">
+            <div className="inline-flex items-center p-2 justify-center w-20 h-20 rounded-2xl bg-primary/10 border border-primary/20">
+              <Logo />
+            </div>
 
-          <div className="w-full max-w-sm space-y-8">
-            <div className="space-y-2 text-center">
-              <h1 className="text-2xl font-semibold tracking-tight">Login</h1>
-              <p className="text-sm text-neutral-400">
-                Enter your email and password to access your account
+            <div className="space-y-4 max-w-sm">
+              <h2 className="text-3xl font-bold leading-tight text-foreground">Welcome back to your private chat</h2>
+              <p className="text-base text-muted-foreground leading-relaxed">
+                Connect securely, chat privately, and stay in control of your conversations.
               </p>
             </div>
 
-            <form
-              onSubmit={handleFormSubmission}
-              className="space-y-6 p-4 bg-neutral-800 rounded-lg shadow-md"
-            >
-              <div className="space-y-4">
-                <div className="flex flex-col">
-                  <label htmlFor="email" className="text-sm text-neutral-400 mb-1">
+              {/* Feature highlights */}
+              <div className="space-y-4 mt-8 pt-8 border-t border-border">
+              {[
+                { icon: "🔒", text: "End-to-end encrypted conversations" },
+                { icon: "👥", text: "Invite anyone to private chats" },
+                { icon: "⚡", text: "Lightning-fast messaging" },
+              ].map((feature, idx) => (
+                <div key={idx} className="flex items-center gap-3">
+                  <div className="text-xl">{feature.icon}</div>
+                  <span className="text-sm text-muted-foreground">{feature.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="text-xs text-muted-foreground">© 2025 Private Chat. All rights reserved.</div>
+        </div>
+
+        <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-6 relative">
+          <a
+            href="/register"
+            className="absolute right-6 gap-2 flex top-6 text-sm  text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Don't have an account? <span className="text-primary font-medium">Register</span>
+          </a>
+
+          <div className="w-full max-w-sm space-y-8">
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">Login</h1>
+              <p className="text-base text-muted-foreground">Enter your credentials to access your account</p>
+            </div>
+
+            <form onSubmit={handleFormSubmission} className="space-y-6">
+              <div className="space-y-5">
+                <div className="flex flex-col space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium text-foreground">
                     Email Address
                   </label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="name@example.com"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                    className="bg-neutral-900 border border-neutral-800 text-white placeholder:text-neutral-500 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-neutral-700"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="bg-card border border-border text-foreground placeholder:text-muted-foreground rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                      required
+                    />
+                  </div>
                 </div>
 
-                <div className="flex flex-col">
-                  <label htmlFor="password" className="text-sm text-neutral-400 mb-1">
+                <div className="flex flex-col space-y-2">
+                  <label htmlFor="password" className="text-sm font-medium text-foreground">
                     Password
                   </label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                    className="bg-neutral-900 border border-neutral-800 text-white placeholder:text-neutral-500 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-neutral-700"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      className="bg-card border border-border text-foreground placeholder:text-muted-foreground rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
 
               <Button
                 type="submit"
-                className="w-full bg-white text-black font-medium py-2 rounded-md hover:bg-neutral-200"
+                disabled={isLoading}
+                className="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Login
+                {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="px-2 bg-background text-muted-foreground">or</span>
+              </div>
+            </div>
+
+            <p className="text-center text-sm text-muted-foreground">
+              Don't have an account?{" "}
+              <a href="/register" className="font-medium text-primary hover:underline">
+                Sign up
+              </a>
+            </p>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }

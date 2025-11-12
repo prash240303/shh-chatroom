@@ -31,9 +31,8 @@ const ChatInput = ({ message, setMessage, sendMessage }: ChatInputProps) => {
       <button
         type="submit"
         className="p-2 rounded-full flex items-center justify-center 
-        bg-white text-black hover:bg-neutral-400 hover:text-white 
-        dark:bg-neutral-800 dark:text-white dark:hover:bg-neutral-600 dark:hover:text-neutral-200 
-        transition-colors duration-300"
+  bg-primary text-primary-foreground hover:bg-primary/90
+  transition-colors duration-300"
       >
         <ArrowUp className="h-5 w-5" />
       </button>

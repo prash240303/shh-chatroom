@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { ThemeColors } from '@/types/theme-types'
-import setGlobalColorTheme from "@/lib/theme-colors"
+import {setGlobalColorTheme} from "@/lib/theme-colors"
 
 type Theme = "dark" | "light" | "system"
 

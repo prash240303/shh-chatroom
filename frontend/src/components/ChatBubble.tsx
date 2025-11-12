@@ -57,8 +57,8 @@ export function ChatBubble({
         <div
           className={`max-w-md rounded-3xl px-4 py-2 transition-colors ${
             isSender
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted text-foreground"
+              ? "bg-primary text-primary-foreground dark:text-white"
+              : "bg-primary/10 text-foreground"
           }`}
         >
           <p className="text-sm leading-relaxed break-words">{message}</p>
