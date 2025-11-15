@@ -35,3 +35,19 @@ export const createRoom = async (roomName: string) => {
   );
   return response.data;
 };
+
+export const DeleteRoom = async (room_id: string) => {
+  const authToken = getAuthTokenFromCookie();
+  if (!authToken) throw new Error('No auth token found');
+
+  const response = await axios.delete(
+    `${BASE_URL}room/delete/${room_id}/`,
+    {
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+  return response.data;
+}

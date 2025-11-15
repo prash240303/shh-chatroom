@@ -5,6 +5,7 @@ import { useChatWebSocket } from "@/hooks/useChatWebSocket";
 import { ChatAreaProps, Message } from "@/types/chat-types";
 import { SidebarTrigger } from "./ui/sidebar";
 import NoRoomSelected from "./NoRoomSelected";
+import RippleButton from "./ui/RippleButton";
 
 const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
   const [message, setMessage] = useState<string>("");
@@ -54,7 +55,7 @@ const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
 
   if (!selectedRoom) {
     return (
-      <div className="chat-area relative w-full h-screen border-l border-neutral-300 bg-neutral-100 text-black dark:border-neutral-700 dark:bg-neutral-900 dark:text-white flex flex-col place-items-center transition-colors duration-300">
+      <div className="chat-area relative w-full h-screen bg-neutral-100 text-black dark:border-neutral-700 dark:bg-neutral-900 dark:text-white flex flex-col place-items-center transition-colors duration-300">
         <div className="absolute top-4 left-4">
           <SidebarTrigger />
         </div>
@@ -64,23 +65,25 @@ const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
   }
 
   return (
-    <div className="chat-area relative w-full h-screen border-l border-neutral-300 bg-neutral-100 text-black dark:border-neutral-700 dark:bg-neutral-900 dark:text-white flex flex-col place-items-center transition-colors duration-300">
-      <div className="absolute z-50 top-4 left-4">
-        <SidebarTrigger />
-      </div>
+    <div className="chat-area relative w-full h-screen  bg-neutral-100 text-black dark:border-neutral-700 dark:bg-neutral-900 dark:text-white flex flex-col place-items-center transition-colors duration-300">
 
-      {/* Header */}
-      <div
-        className="absolute top-0 left-0 right-0 z-20 backdrop-blur-md bg-white/20 dark:bg-black/20 p-4 text-left ml-10 "
-      >
-        <h1 className="text-lg font-bold text-primary">
-          {selectedRoom.roomname}
-        </h1>
-      </div>
+      <div className="bg-white/20 absolute flex items-center border-b  z-50 backdrop-blur-md  top-0 left-0 w-full px-4 dark:bg-black/20 ">
+        <div className=" top-4 left-4">
+          <SidebarTrigger />
+        </div>
 
+        {/* Header */}
+        <div
+          className="p-4 text-left"
+        >
+          <h1 className="text-lg font-bold text-primary">
+            {selectedRoom.roomname}
+          </h1>
+        </div>
+      </div>
 
       {/* Messages */}
-      <div className="messages max-w-5xl flex-1 overflow-y-auto p-4 w-full">
+      <div className="messages max-w-5xl mt-12 flex-1 overflow-y-auto p-4 w-full">
         {messages.map((msg: Message, index: number) => {
           const isSender = msg.user.toLowerCase() === currentUserEmail;
           const isFirstMessageInGroup =

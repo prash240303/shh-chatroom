@@ -19,7 +19,7 @@ urlpatterns = [
     path('rooms/create/', create_room, name='create_room'),
 
     path('room/join/', join_room, name='join_room'),
-    path('room/delete/<uuid:room_id>/', delete_room, name='delete_room')
+    path('room/delete/<str:room_id>/', delete_room)
 
 ]
 

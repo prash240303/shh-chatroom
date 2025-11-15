@@ -11,7 +11,6 @@ import {
   LockKeyhole,
   LogOut,
   MoreVertical,
-  Copy,
   Trash2,
   Edit,
   Link,
@@ -20,7 +19,7 @@ import { useEffect, useState, useCallback } from "react";
 import { handleLogout } from "@/lib/authUtils";
 import toast from "react-hot-toast";
 import { useTheme } from "next-themes";
-import { fetchRooms, createRoom, Room } from "@/api/rooms";
+import { fetchRooms, createRoom, Room, DeleteRoom } from "@/api/rooms";
 import {
   Popover,
   PopoverContent,
@@ -48,7 +47,7 @@ interface AppSidebarProps {
     roomId: string;
     roomname: string;
   } | null;
-  setSelectedRoom: (room: { roomId: string; roomname: string }) => void;
+  setSelectedRoom: (room: { roomId: string; roomname: string } | null) => void;
 }
 
 export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
@@ -59,8 +58,12 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
   const [newRoomName, setNewRoomName] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [currentColorTheme, setCurrentColorTheme] = useState(getGlobalColorTheme());
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [roomToDelete, setRoomToDelete] = useState<string | null>(null);
 
+  console.log("list of rooms", rooms)
   console.log("curr", currentColorTheme)
+  console.log("selected room", selectedRoom)
 
   const handleCreateRoom = async () => {
     console.log("Starting room creation process...");
@@ -106,9 +109,43 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
     }
   }, []);
 
+  const handleDeleteRooms = async (roomId: string) => {
+    if (!roomId) {
+      toast.error("No room selected");
+      return;
+    }
+
+    try {
+      console.log("Deleting room with ID:", roomId);
+
+      const response = await DeleteRoom(roomId);
+      console.log("Room deleted:", response);
+
+      toast.success("Room deleted successfully!");
+
+      // Remove room instantly from UI **without waiting for refetch**
+      setRooms((prev) => prev.filter((room) => room.room_id !== roomId));
+
+      // If the deleted room was selected — reset selection
+      if (selectedRoom?.roomId === roomId) {
+        setSelectedRoom(null);
+      }
+
+      // Refetch to ensure sync with backend
+      await handleFetchRooms();
+
+    } catch (error: any) {
+      console.error("Delete error:", error);
+      toast.error(error.response?.data?.error || "Failed to delete room");
+    }
+  };
+
+
   useEffect(() => {
     handleFetchRooms();
   }, [handleFetchRooms]);
+
+
 
   console.log("theme", currentColorTheme)
   return (
@@ -220,8 +257,8 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
                             <PopoverTrigger asChild>
                               <button
                                 className={`transition-colors ${selectedRoom?.roomId === room.room_id
-                                    ? "text-white"
-                                    : "text-secondary-foreground group-hover:text-black"
+                                  ? "text-white"
+                                  : "text-secondary-foreground group-hover:text-black"
                                   }`}
                               >
                                 <MoreVertical className="w-4 h-4" />
@@ -242,11 +279,51 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
 
                               <button
                                 className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-primary hover:bg-primary hover:text-white"
-                                onClick={() => { }}
+                                onClick={() => {
+                                  setRoomToDelete(room.room_id);
+                                  setIsDeleteDialogOpen(true);
+                                }}
+
                               >
                                 <Trash2 className="w-4 h-4 mr-2" /> Delete Room
                               </button>
+
+                              <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                                <DialogContent className="bg-secondary border-border">
+                                  <DialogHeader>
+                                    <DialogTitle>Delete Room?</DialogTitle>
+                                    <DialogDescription>
+                                      Are you sure you want to delete this room? This action cannot be undone.
+                                    </DialogDescription>
+                                  </DialogHeader>
+
+                                  <DialogFooter>
+                                    <Button
+                                      variant="outline"
+                                      onClick={() => {
+                                        setIsDeleteDialogOpen(false);
+                                        setRoomToDelete(null);
+                                      }}
+                                    >
+                                      Cancel
+                                    </Button>
+
+                                    <Button
+                                      variant="destructive"
+                                      onClick={async () => {
+                                        if (roomToDelete) await handleDeleteRooms(roomToDelete);
+                                        setIsDeleteDialogOpen(false);
+                                        setRoomToDelete(null);
+                                      }}
+                                    >
+                                      Delete
+                                    </Button>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
+
                             </PopoverContent>
+
                           </Popover>
                         )}
                     </motion.div>
@@ -268,7 +345,7 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
       <SidebarFooter>
         <Button
           variant="destructive"
-          className={cn("mt-4 mb-2 transition-all", currentColorTheme==="Zinc" ? "bg-black dark:bg-secondary hover:bg-neutral-800 dark:hover:bg-neutral-700":"bg-primary hover:bg-primary/70")}
+          className={cn("mt-4 mb-2 transition-all", currentColorTheme === "Zinc" ? "bg-black dark:bg-secondary hover:bg-neutral-800 dark:hover:bg-neutral-700" : "bg-primary hover:bg-primary/70")}
           onClick={handleLogout}
         >
           <LogOut className="mr-2 h-4 w-4" /> Logout

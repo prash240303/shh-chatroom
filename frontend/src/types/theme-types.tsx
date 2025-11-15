@@ -1,4 +1,4 @@
-export type ThemeColors = 'Orange' | 'Blue' | 'Green' | 'Rose' | 'Zinc';
+export type ThemeColors = 'Orange' | 'Ocean' | 'Green' | 'Rose' | 'Zinc';
 
 export interface ThemeColorStateParams {
   themeColor: ThemeColors;

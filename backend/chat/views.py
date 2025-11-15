@@ -206,11 +206,6 @@ def delete_room(request, room_id):
             "message": "Room deleted successfully",
             "deleted_room": {
                 "room_id": str(room_id),
-                "deleted_by": {
-                    "id": str(request.user.id),
-                    "email": request.user.email,
-                    "username": getattr(request.user, 'username', request.user.email.split('@')[0])
-                }
             }
         }, status=200)
     except Exception as e:

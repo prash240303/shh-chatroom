@@ -1,4 +1,4 @@
-type ThemeColors = 'Orange' | 'Blue' | 'Green' | 'Rose' | 'Zinc';
+type ThemeColors = 'Orange' | 'Ocean' | 'Green' | 'Rose' | 'Zinc';
 
 const themes = {
   Orange: {
@@ -47,7 +47,7 @@ const themes = {
     },
   },
 
-  Blue: {
+  Ocean: {
     light: {
       background: "0 0% 100%",
       foreground: "222.2 84% 10%",
@@ -61,7 +61,7 @@ const themes = {
       secondaryForeground: "222.2 47.4% 11.2%",
       muted: "210 40% 96.1%",
       mutedForeground: "215.4 16.3% 46.9%",
-      accent: "221.2 83.2% 92%", // soft blue accent bg
+      accent: "221.2 83.2% 92%", // soft Ocean accent bg
       accentForeground: "221.2 83.2% 25%",
       destructive: "0 84.2% 60.2%",
       destructiveForeground: "210 40% 98%",

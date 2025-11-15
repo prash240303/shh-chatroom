@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { getGlobalColorTheme } from "@/lib/theme-colors";
 
 interface ChatBubbleProps {
   message: string;
@@ -22,10 +23,10 @@ export function ChatBubble({
   isFirstMessageInGroup,
 }: ChatBubbleProps) {
   const [isTooltipVisible, setIsTooltipVisible] = React.useState(false);
-
+  const currColorTheme = getGlobalColorTheme();
   return (
     <motion.div
-      className={`flex items-start transition-all duration-50 ease-in-out space-x-2 mb-1 ${isSender ? "justify-end" : "justify-start"
+      className={`flex items-start transition-all duration-50 ease-in-out space-x-2 mb-1 mt-2 ${isSender ? "justify-end" : "justify-start"
         }`}
       style={{
         paddingLeft: !isSender && !isFirstMessageInGroup ? "2.5rem" : "0",
@@ -67,7 +68,9 @@ export function ChatBubble({
           className={`max-w-md rounded-3xl px-4 py-2 transition-colors ${isSender
             ? "bg-primary text-primary-foreground dark:text-white"
             : "bg-primary/10 text-foreground"
-            }`}
+            }
+            ${currColorTheme === "Zinc" ? "bg-black dark:bg-black text-white" : "bg-primary"}
+            `}
         >
           <p className="text-sm leading-relaxed break-words">{message}</p>
         </div>

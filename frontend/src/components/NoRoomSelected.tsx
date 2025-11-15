@@ -6,6 +6,7 @@ import { Button } from './ui/button';
 import { Logo } from "../../public/Logo"
 import { cn } from '@/lib/utils';
 import { getGlobalColorTheme } from '@/lib/theme-colors';
+import RippleButton from './ui/RippleButton';
 
 const NoRoomSelected = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -66,9 +67,12 @@ const NoRoomSelected = () => {
 
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="text-foreground font-medium text-lg bg-secondary inline-block w-fit border border-border hover:scale-[102%] ease-in-out duration-500 rounded-full px-8 hover:bg-accent py-3 h-full transition-all">
+            <RippleButton>
               Create Room
-            </Button>
+            </RippleButton>
+            {/* <Button className="text-foreground font-medium text-lg bg-secondary inline-block w-fit border border-border hover:scale-[102%] ease-in-out duration-500 rounded-full px-8 hover:bg-accent py-3 h-full transition-all">
+              Create Room
+            </Button> */}
           </DialogTrigger>
           <DialogContent className="bg-card border-border shadow-md">
             <DialogHeader>
