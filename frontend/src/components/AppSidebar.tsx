@@ -14,6 +14,7 @@ import {
   Copy,
   Trash2,
   Edit,
+  Link,
 } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { handleLogout } from "@/lib/authUtils";
@@ -40,7 +41,7 @@ import { Input } from "./ui/input";
 import { ThemeColorToggle } from "./ThemeColorToggle";
 import { ThemeModeToggle } from "./ThemeModeToggle";
 import { getGlobalColorTheme } from "@/lib/theme-colors";
-
+import { cn } from "@/lib/utils";
 
 interface AppSidebarProps {
   selectedRoom: {
@@ -124,7 +125,7 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
             </button>
 
           </DialogTrigger>
-          <DialogContent className="bg-card border-border shadow-lg">
+          <DialogContent className="bg-secondary border-border shadow-lg">
             <DialogHeader>
               <DialogTitle className="text-card-foreground text-xl font-semibold">
                 Create a new room
@@ -137,7 +138,7 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
               value={newRoomName}
               onChange={(e) => setNewRoomName(e.target.value)}
               placeholder="Enter a room name"
-              className="bg-input text-foreground border-border 
+              className="bg-secondary text-foreground border-primary/30 
             focus:border-ring focus:ring-ring placeholder:text-muted-foreground 
             transition-colors"
             />
@@ -177,7 +178,7 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ duration: 0.3 }}
-                      className={`relative flex items-center justify-between px-3 py-3 rounded-lg mb-1 cursor-pointer transition-all
+                      className={`relative isolate group flex items-center justify-between px-3 py-3 rounded-lg mb-1 cursor-pointer transition-all
                         ${selectedRoom?.roomId === room.room_id
                           ? currentColorTheme === "Zinc"
                             ? "bg-primary dark:bg-secondary text-button"
@@ -197,11 +198,8 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
                       <div className="flex gap-1 justify-center font-semibold items-center">
                         <LockKeyhole
                           className={`mr-2 w-4 h-4 ${selectedRoom?.roomId === room.room_id
-                            ? "text-white"
-                            : theme === "dark"
-                              ? "text-primary"
-                              : "text-primary"
-                            }`}
+                            ? "text-white" : "text-secondary-foreground"}
+                            `}
                         />
                         <span
                           className={
@@ -220,19 +218,18 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
                         selectedRoom?.roomId === room.room_id) && (
                           <Popover>
                             <PopoverTrigger asChild>
-                              <button className="text-neutral-400 hover:text-neutral-300 transition-colors">
+                              <button
+                                className={`transition-colors ${selectedRoom?.roomId === room.room_id
+                                    ? "text-white"
+                                    : "text-secondary-foreground group-hover:text-black"
+                                  }`}
+                              >
                                 <MoreVertical className="w-4 h-4" />
                               </button>
                             </PopoverTrigger>
-                            <PopoverContent className="bg-neutral-800 space-y-0 border border-neutral-700 w-40 p-1 rounded-md shadow-lg">
+                            <PopoverContent className="bg-secondary space-y-0 border border-primary/10 w-36 p-1 rounded-md shadow-lg">
                               <button
-                                className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-red-400 hover:bg-neutral-700 hover:text-red-300"
-                                onClick={() => { }}
-                              >
-                                <Trash2 className="w-4 h-4 mr-2" /> Delete Room
-                              </button>
-                              <button
-                                className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-neutral-300 hover:bg-neutral-700 hover:text-neutral-200"
+                                className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-primary hover:bg-primary hover:text-white"
                                 onClick={() => {
                                   navigator.clipboard.writeText(
                                     `${window.location.origin}/?room_id=${room.room_id}`
@@ -240,7 +237,14 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
                                   toast.success("Shareable link copied!");
                                 }}
                               >
-                                <Copy className="w-4 h-4 mr-2" /> Share Link
+                                <Link className="w-4 h-4 mr-2" /> Share Link
+                              </button>
+
+                              <button
+                                className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-primary hover:bg-primary hover:text-white"
+                                onClick={() => { }}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" /> Delete Room
                               </button>
                             </PopoverContent>
                           </Popover>
@@ -264,8 +268,7 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
       <SidebarFooter>
         <Button
           variant="destructive"
-          className="mt-4 mb-2 bg-red-600 text-white dark:bg-red-600 hazel:bg-hazel-primary 
-          hover:bg-red-500 dark:hover:bg-red-500 hazel:hover:bg-hazel-accent transition-all"
+          className={cn("mt-4 mb-2 transition-all", currentColorTheme==="Zinc" ? "bg-black dark:bg-secondary hover:bg-neutral-800 dark:hover:bg-neutral-700":"bg-primary hover:bg-primary/70")}
           onClick={handleLogout}
         >
           <LogOut className="mr-2 h-4 w-4" /> Logout

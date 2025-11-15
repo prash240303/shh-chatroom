@@ -4,11 +4,13 @@ import { Input } from "./ui/input";
 import { useState } from 'react';
 import { Button } from './ui/button';
 import { Logo } from "../../public/Logo"
+import { cn } from '@/lib/utils';
+import { getGlobalColorTheme } from '@/lib/theme-colors';
 
 const NoRoomSelected = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newRoomName, setNewRoomName] = useState("");
-
+  const currColorTheme = getGlobalColorTheme();
   return (
     <div className="w-full shh my-auto max-w-md rounded-3xl p-8 space-y-6 bg-card text-card-foreground border border-border transition-colors">
       <div className="mx-auto w-[100px] text-primary h-[100px]">
@@ -50,9 +52,17 @@ const NoRoomSelected = () => {
       </div>
 
       <div className="flex gap-3 pt-4">
-        <Button className="flex-1 h-full bg-primary text-white hover:bg-primary/90 hover:scale-[102%] ease-in-out duration-500 transition-all rounded-full py-3 px-3 text-lg">
+        <Button
+          className={cn(
+            "relative overflow-hidden flex-1 h-full bg-primary text-white hover:bg-primary/90 hover:scale-[102%] ease-in-out duration-500 transition-all rounded-full py-3 px-3 text-lg shine-effect",
+            currColorTheme == 'Zinc'
+              ? 'bg-black dark:bg-black hover:bg-neutral-900 dark:hover:bg-neutral-950'
+              : ''
+          )}
+        >
           @shh
         </Button>
+
 
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>

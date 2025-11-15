@@ -8,7 +8,7 @@ import NoRoomSelected from "./NoRoomSelected";
 
 const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
   const [message, setMessage] = useState<string>("");
-  
+
   const currentUserEmail = useMemo<string>(
     () => localStorage.getItem("userEmailKey")?.trim().toLowerCase() || "",
     []
@@ -16,14 +16,14 @@ const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
 
   // Memoize room config to prevent unnecessary WebSocket reconnections
   const roomConfig = useMemo<{ roomname: string; roomid: string } | undefined>(
-    () => selectedRoom 
+    () => selectedRoom
       ? { roomname: selectedRoom.roomname, roomid: selectedRoom.roomId }
       : undefined,
     [selectedRoom?.roomname, selectedRoom?.roomId]
   );
 
   const { messages, socketRef } = useChatWebSocket(roomConfig);
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change
@@ -44,7 +44,7 @@ const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
         message: message.trim(),
         timestamp: new Date().toISOString(),
       };
-  
+
       socketRef.current.send(JSON.stringify(newMessage));
       setMessage("");
     } else {
@@ -65,16 +65,19 @@ const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
 
   return (
     <div className="chat-area relative w-full h-screen border-l border-neutral-300 bg-neutral-100 text-black dark:border-neutral-700 dark:bg-neutral-900 dark:text-white flex flex-col place-items-center transition-colors duration-300">
-      <div className="absolute top-4 left-4">
+      <div className="absolute z-50 top-4 left-4">
         <SidebarTrigger />
       </div>
 
       {/* Header */}
-      <div className="header w-full text-center p-4">
-        <h1 className="text-lg text-white dark:text-neutral-900 font-bold">
+      <div
+        className="absolute top-0 left-0 right-0 z-20 backdrop-blur-md bg-white/20 dark:bg-black/20 p-4 text-left ml-10 "
+      >
+        <h1 className="text-lg font-bold text-primary">
           {selectedRoom.roomname}
         </h1>
       </div>
+
 
       {/* Messages */}
       <div className="messages max-w-5xl flex-1 overflow-y-auto p-4 w-full">

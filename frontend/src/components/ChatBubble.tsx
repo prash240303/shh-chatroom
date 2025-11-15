@@ -25,16 +25,25 @@ export function ChatBubble({
 
   return (
     <motion.div
-      className={`flex items-start transition-all duration-200 ease-in-out space-x-2 mb-1 ${
-        isSender ? "justify-end" : "justify-start"
-      }`}
+      className={`flex items-start transition-all duration-50 ease-in-out space-x-2 mb-1 ${isSender ? "justify-end" : "justify-start"
+        }`}
       style={{
         paddingLeft: !isSender && !isFirstMessageInGroup ? "2.5rem" : "0",
         paddingRight: isSender && !isFirstMessageInGroup ? "2.5rem" : "0",
       }}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      animate={{
+        opacity: 1,
+        y: 0,
+        scale: 1,
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 500,
+        damping: 25,
+        mass: 0.3,
+      }}
+
     >
       {!isSender && isFirstMessageInGroup && (
         <Avatar className="w-8 h-8">
@@ -51,15 +60,14 @@ export function ChatBubble({
         onMouseLeave={() => setIsTooltipVisible(false)}
       >
         {isFirstMessageInGroup && !isSender && (
-          <div className="text-xs font-medium text-muted-foreground mb-1">{userName}</div>
+          <div className="text-xs font-medium text-foreground mb-1">{userName}</div>
         )}
 
         <div
-          className={`max-w-md rounded-3xl px-4 py-2 transition-colors ${
-            isSender
-              ? "bg-primary text-primary-foreground dark:text-white"
-              : "bg-primary/10 text-foreground"
-          }`}
+          className={`max-w-md rounded-3xl px-4 py-2 transition-colors ${isSender
+            ? "bg-primary text-primary-foreground dark:text-white"
+            : "bg-primary/10 text-foreground"
+            }`}
         >
           <p className="text-sm leading-relaxed break-words">{message}</p>
         </div>
@@ -76,7 +84,7 @@ export function ChatBubble({
                       ? { opacity: 1, scale: 1, display: "block" }
                       : { opacity: 0, scale: 0.95, display: "none" }
                   }
-                  transition={{ duration: 0.3,delay: 0.2,  ease: "easeInOut" }}
+                  transition={{ duration: 0.3, delay: 0.2, ease: "easeInOut" }}
                   layout
                 >
                   <motion.time className="text-xs mt-1 cursor-pointer text-muted-foreground">
@@ -86,10 +94,23 @@ export function ChatBubble({
               </TooltipTrigger>
               <TooltipContent asChild forceMount>
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: 5 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: 5 }}
-                  transition={{ duration: 0.25, ease: "easeInOut" }}
+                  initial={{ opacity: 0, scale: 0.9, y: 8 }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    y: 0,
+                  }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0.9,
+                    y: 8,
+                  }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 240,
+                    damping: 20,
+                  }}
+
                   className="bg-popover text-popover-foreground border border-border p-2 rounded-md shadow-lg"
                 >
                   {format(timestamp, "PPpp")}

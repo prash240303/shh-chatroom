@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useLocation, useNavigate } from "react-router-dom"
 import { Logo } from "../../public/Logo"
+import { getGlobalColorTheme } from "@/lib/theme-colors"
+import { cn } from "@/lib/utils"
 
 const BASE_URL = import.meta.env.VITE_BASE_URL
 
@@ -20,6 +22,7 @@ export default function Login() {
   const location = useLocation()
   const navigate = useNavigate()
   const searchParams = new URLSearchParams(location.search)
+  const currentColorTheme = getGlobalColorTheme()
 
   function getCookie(name: string) {
     const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`))
@@ -98,8 +101,8 @@ export default function Login() {
               </p>
             </div>
 
-              {/* Feature highlights */}
-              <div className="space-y-4 mt-8 pt-8 border-t border-border">
+            {/* Feature highlights */}
+            <div className="space-y-4 mt-8 pt-8 border-t border-border">
               {[
                 { icon: "🔒", text: "End-to-end encrypted conversations" },
                 { icon: "👥", text: "Invite anyone to private chats" },
@@ -170,7 +173,7 @@ export default function Login() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className={cn("w-full  text-white font-semibold py-3 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed", currentColorTheme === "Zinc" ? "dark:bg-secondary hover:bg-neutral-800" : "bg-primary")}
               >
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>

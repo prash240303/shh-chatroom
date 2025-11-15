@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Send } from "lucide-react";
 
 interface ChatInputProps {
   message: string;
@@ -30,12 +30,31 @@ const ChatInput = ({ message, setMessage, sendMessage }: ChatInputProps) => {
       />
       <button
         type="submit"
-        className="p-2 rounded-full flex items-center justify-center 
-  bg-primary text-primary-foreground hover:bg-primary/90
-  transition-colors duration-300"
+        className="relative p-5 rounded-full flex items-center justify-center 
+    bg-primary text-primary-foreground hover:bg-primary/90
+    transition-colors duration-300"
       >
-        <ArrowUp className="h-5 w-5" />
+        {/* Up Arrow (default) */}
+        <ArrowUp
+          className={`h-5 w-5 absolute transition-all duration-300 
+            ${message.trim().length > 0 ? "opacity-0 scale-50 -translate-y-1 rotate-45"   // hide with motion
+              : "opacity-100 scale-100 translate-y-0 rotate-0" // show cleanly
+            }
+    `}
+        />
+
+        {/* Send Arrow (shown when typing) */}
+        <Send
+          className={` h-4 w-4 absolute transition-all duration-300
+      ${message.trim().length > 0
+              ? "opacity-100 scale-100 translate-y-0 rotate-0"  // reveal smoothly
+              : "opacity-0 scale-50 translate-y-1 -rotate-45"   // hide smoothly
+            }
+    `}
+        />
       </button>
+
+
     </form>
   );
 };
