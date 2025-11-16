@@ -10,6 +10,7 @@ const themes = {
       popover: "0 0% 100%",
       popoverForeground: "24.6 95% 15%",
       primary: "24.6 95% 53.1%",
+      chatPrimary: "24.6 95% 53.1%",
       primaryForeground: "60 9.1% 97.8%",
       secondary: "60 4.8% 95.9%",
       secondaryForeground: "24.6 95% 15%",
@@ -32,6 +33,7 @@ const themes = {
       popover: "20 14.3% 4.1%",
       popoverForeground: "60 9.1% 97.8%",
       primary: "20.5 90.2% 48.2%",
+      chatPrimary: "20.5 90.2% 48.2%",
       primaryForeground: "60 9.1% 97.8%",
       secondary: "12 6.5% 15.1%",
       secondaryForeground: "60 9.1% 97.8%",
@@ -56,6 +58,7 @@ const themes = {
       popover: "0 0% 100%",
       popoverForeground: "222.2 84% 10%",
       primary: "221.2 83.2% 53.3%",
+      chatPrimary: "221.2 83.2% 53.3%",
       primaryForeground: "210 40% 98%",
       secondary: "210 40% 96.1%",
       secondaryForeground: "222.2 47.4% 11.2%",
@@ -78,6 +81,7 @@ const themes = {
       popover: "222.2 84% 4.9%",
       popoverForeground: "210 40% 98%",
       primary: "217.2 91.2% 59.8%",
+      chatPrimary: "217.2 91.2% 59.8%",
       primaryForeground: "222.2 47.4% 11.2%",
       secondary: "217.2 32.6% 17.5%",
       secondaryForeground: "210 40% 98%",
@@ -102,6 +106,7 @@ const themes = {
       popover: "0 0% 100%",
       popoverForeground: "142.1 76.2% 15%",
       primary: "142.1 76.2% 36.3%",
+      chatPrimary: "142.1 76.2% 36.3%",
       primaryForeground: "355.7 100% 97.3%",
       secondary: "240 4.8% 95.9%",
       secondaryForeground: "142.1 76.2% 15%",
@@ -124,6 +129,7 @@ const themes = {
       popover: "0 0% 9%",
       popoverForeground: "0 0% 95%",
       primary: "142.1 70.6% 45.3%",
+      chatPrimary: "142.1 70.6% 45.3%",
       primaryForeground: "144.9 80.4% 10%",
       secondary: "240 3.7% 15.9%",
       secondaryForeground: "0 0% 98%",
@@ -148,6 +154,7 @@ const themes = {
       popover: "0 0% 100%",
       popoverForeground: "346.8 77.2% 15%",
       primary: "346.8 77.2% 49.8%",
+      chatPrimary: "346.8 77.2% 49.8%",
       primaryForeground: "355.7 100% 97.3%",
       secondary: "240 4.8% 95.9%",
       secondaryForeground: "346.8 77.2% 15%",
@@ -170,6 +177,7 @@ const themes = {
       popover: "0 0% 9%",
       popoverForeground: "0 0% 95%",
       primary: "346.8 77.2% 49.8%",
+      chatPrimary: "346.8 77.2% 49.8%",
       primaryForeground: "355.7 100% 97.3%",
       secondary: "240 3.7% 15.9%",
       secondaryForeground: "0 0% 98%",
@@ -194,6 +202,7 @@ const themes = {
       popover: "0 0% 100%",
       popoverForeground: "240 10% 10%",
       primary: "240 5.9% 10%",
+      chatPrimary: "240 5.9% 10%",
       primaryForeground: "0 0% 98%",
       secondary: "240 4.8% 95.9%",
       secondaryForeground: "240 5.9% 10%",
@@ -216,6 +225,7 @@ const themes = {
       popover: "240 9% 6%",              // Between background and card
       popoverForeground: "0 0% 98%",
       primary: "0 0% 98%",               // Bright accent
+      chatPrimary: "0 0% 0%",
       primaryForeground: "240 5.9% 10%",
       secondary: "240 5% 18%",           // Medium-dark gray
       secondaryForeground: "0 0% 98%",
@@ -241,7 +251,7 @@ export function setGlobalColorTheme(
   for (const key in theme) {
     document.documentElement.style.setProperty(`--${key}`, theme[key]);
   }
-  
+
   // Store the current color theme
   localStorage.setItem('colorTheme', color);
 }
