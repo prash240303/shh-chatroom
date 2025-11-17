@@ -31,7 +31,7 @@ const RippleButton: React.FC<RippleButtonProps> = ({
           left: x,
           top: y,
         }}
-        className="absolute bg-primary/30 cursor-pointer rounded-full  animate-rippleScale"
+        className="absolute bg-primary/30 pointer-events-none rounded-full animate-rippleScale"
         onAnimationEnd={() =>
           setRipples((prev) => prev.filter((r) => r.key !== newRipple.key))
         }
@@ -46,7 +46,7 @@ const RippleButton: React.FC<RippleButtonProps> = ({
       ref={buttonRef}
       onMouseEnter={createRipple}
       className={cn(
-        `relative overflow-hidden ${className} hover:bg-primary hover:text-secondary dark:text-secondary-foreground text-foreground font-medium text-lg bg-secondary inline-block w-fit border border-border hover:scale-[102%] ease-in-out duration-500 rounded-full px-8 py-3 h-full transition-all`
+        `relative overflow-hidden ${className} hover:bg-chatPrimary hover:text-secondary dark:text-secondary-foreground text-foreground font-medium text-lg bg-secondary inline-block w-fit border border-border hover:scale-[102%] ease-in-out duration-500 rounded-full px-8 py-3 h-full transition-all`
       )}
       {...props}
     >

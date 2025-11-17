@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { getGlobalColorTheme } from "@/lib/theme-colors";
 
 interface ChatBubbleProps {
   message: string;
@@ -23,7 +22,6 @@ export function ChatBubble({
   isFirstMessageInGroup,
 }: ChatBubbleProps) {
   const [isTooltipVisible, setIsTooltipVisible] = React.useState(false);
-  const currColorTheme = getGlobalColorTheme();
   return (
     <motion.div
       className={`flex items-start transition-all duration-50 ease-in-out space-x-2 mb-1 mt-2 ${isSender ? "justify-end" : "justify-start"
