@@ -5,7 +5,6 @@ import { useChatWebSocket } from "@/hooks/useChatWebSocket";
 import { ChatAreaProps, Message } from "@/types/chat-types";
 import { SidebarTrigger } from "./ui/sidebar";
 import NoRoomSelected from "./NoRoomSelected";
-import RippleButton from "./ui/RippleButton";
 
 const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
   const [message, setMessage] = useState<string>("");
