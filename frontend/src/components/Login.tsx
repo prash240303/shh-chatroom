@@ -24,6 +24,9 @@ export default function Login() {
   const searchParams = new URLSearchParams(location.search)
   const currentColorTheme = getGlobalColorTheme()
 
+  function RefershAccessToken() {
+    console.log("Refreshing access token")
+  }
   function getCookie(name: string) {
     const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`))
     return match ? match[2] : null
