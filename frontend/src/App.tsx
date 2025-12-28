@@ -1,20 +1,23 @@
-import "./App.css"
-import { BrowserRouter, Route, Routes } from "react-router-dom"
-import Register from "./components/Register"
-import Login from "./components/Login"
-import ChatLayout from "./components/ChatLayout"
-import { Toaster } from "react-hot-toast"
-import { ThemeProvider } from "./context/theme-provider"
+import "./App.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Register from "./components/Register";
+import Login from "./components/Login";
+import ChatLayout from "./components/ChatLayout";
+import { Toaster } from "react-hot-toast";
+import { ThemeProvider } from "./context/theme-provider";
+import { AuthProvider } from "./auth/useAuth";
 
 function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/" element={<ChatLayout />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/" element={<ChatLayout />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
       <Toaster
         position="top-center"
@@ -38,8 +41,7 @@ function App() {
         }}
       />
     </ThemeProvider>
-  )
+  );
 }
 
-export default App
-
+export default App;

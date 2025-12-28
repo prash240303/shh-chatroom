@@ -20,38 +20,28 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'email','password', 'first_name', 'last_name']  
         extra_kwargs = {'password': {'write_only': True}}
 
-
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    id = serializers.CharField(max_length=15, read_only=True)
-    password = serializers.CharField(max_length=255, write_only=True)
+    password = serializers.CharField(write_only=True)
 
+    def validate(self, attrs):
+        email = attrs.get("email")
+        password = attrs.get("password")
 
-    def validate(self, data):
-        email = data.get('email', None) # email or default None
-        password = data.get('password', None) # password or default None
-        if email is None:
-            raise serializers.ValidationError("An email address is required to log in.")
-        if password is None:
-            raise serializers.ValidationError("A password is required to log in.")
-        
-        
-        user = authenticate(email=email, password=password)
+        if not email or not password:
+            raise serializers.ValidationError("Email and password are required")
+
+        user = authenticate(
+            email=email,
+            password=password
+        )
 
         if user is None:
-            raise serializers.ValidationError("Invalid Email or Password")
-        
+            raise serializers.ValidationError("Invalid email or password")
+
         if not user.is_active:
-            raise serializers.ValidationError("This user has been deactivated.")
-        
-        return {
-            'email': user.email,
-            'id': user.id
-        }
-    
+            raise serializers.ValidationError("This user has been deactivated")
 
-    
-
-
-
-    
+        # 🔥 Attach the user to validated_data
+        attrs["user"] = user
+        return attrs

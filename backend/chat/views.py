@@ -1,15 +1,15 @@
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from django.contrib.auth import get_user_model
 from chat.serializers import UserGetSerializer, MessageSerializer
 from rest_framework.response import Response
 from .models import Message, Rooms, RoomParticipant
 from rest_framework.permissions import IsAuthenticated
-
+from userAuth.tokenAuth import JWTAuthentication
 User = get_user_model()
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication]) 
 def get_user_list(request):
     """
     Fetch a list of all users except the authenticated user.
@@ -24,7 +24,7 @@ def get_user_list(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication]) 
 def get_messages(request, room_name):
     """
     Fetch message history for a specific chat room.
@@ -53,7 +53,7 @@ def get_messages(request, room_name):
 
         
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication]) 
 def send_message(request, room_name):
     """
     Send a message to a specific chat room.
@@ -79,7 +79,7 @@ def send_message(request, room_name):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication]) 
 def get_user_rooms(request):
     """
     Get all chat rooms the authenticated user is part of.
@@ -115,7 +115,7 @@ def get_user_rooms(request):
 
         
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication]) 
 def create_room(request):
     """
     Create a new chat room and add the creator as a participant.
@@ -150,7 +150,7 @@ def create_room(request):
     
     
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication]) 
 def join_room(request):
     """
     Join a chat room by room ID.
@@ -185,7 +185,7 @@ def join_room(request):
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication]) 
 def delete_room(request, room_id):
     """
     Delete a chat room by its room ID.

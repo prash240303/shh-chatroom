@@ -1,7 +1,5 @@
-import axios from 'axios';
-import { getAuthTokenFromCookie } from '@/lib/authUtils';
-
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+// lib/api/rooms.ts
+import http from "../lib/http";
 
 export interface Room {
   room_name: string;
@@ -9,45 +7,48 @@ export interface Room {
   room_id: string;
 }
 
-export const fetchRooms = async () => {
-  const authToken = getAuthTokenFromCookie();
-  if (!authToken) throw new Error('No auth token found');
-
-  const response = await axios.get(`${BASE_URL}rooms/`, {
-    headers: { Authorization: `Bearer ${authToken}` },
-  });
-  return response.data.rooms;
+// Fetch all rooms for current user
+export const fetchRooms = async (): Promise<Room[]> => {
+  try {
+    const res = await http.get("/rooms/");
+    return res.data.rooms;
+  } catch (error: any) {
+    console.error("❌ FETCH ROOMS FAILED:", error.message);
+    throw error;
+  }
 };
 
+// Create a new room
 export const createRoom = async (roomName: string) => {
-  const authToken = getAuthTokenFromCookie();
-  if (!authToken) throw new Error('No auth token found');
-
-  const response = await axios.post(
-    `${BASE_URL}rooms/create/`,
-    { chat_room_name: roomName.trim() },
-    {
-      headers: {
-        'Authorization': `Bearer ${authToken}`,
-        'Content-Type': 'application/json'
-      }
-    }
-  );
-  return response.data;
+  try {
+    const res = await http.post("/rooms/create/", {
+      chat_room_name: roomName.trim(),
+    });
+    return res.data;
+  } catch (error: any) {
+    console.error("❌ CREATE ROOM FAILED:", error.message);
+    throw error;
+  }
 };
 
-export const DeleteRoom = async (room_id: string) => {
-  const authToken = getAuthTokenFromCookie();
-  if (!authToken) throw new Error('No auth token found');
+// Delete a room
+export const deleteRoom = async (room_id: string) => {
+  try {
+    const res = await http.delete(`/room/delete/${room_id}/`);
+    return res.data;
+  } catch (error: any) {
+    console.error("❌ DELETE ROOM FAILED:", error.message);
+    throw error;
+  }
+};
 
-  const response = await axios.delete(
-    `${BASE_URL}room/delete/${room_id}/`,
-    {
-      headers: {
-        'Authorization': `Bearer ${authToken}`,
-        'Content-Type': 'application/json'
-      }
-    }
-  );
-  return response.data;
-}
+// Join a room
+export const joinRoom = async (room_id: string) => {
+  try {
+    const res = await http.post("/room/join/", { room_id });
+    return res.data;
+  } catch (error: any) {
+    console.error("❌ JOIN ROOM FAILED:", error.message);
+    throw error;
+  }
+};

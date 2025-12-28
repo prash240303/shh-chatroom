@@ -29,10 +29,39 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"] 
 
+# settings.py
+
+# CORS Configuration - Allow localhost frontend to access 127.0.0.1 backend
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5173",
-    "http://localhost:5173"
+    "http://localhost:5173",
 ]
+
+CORS_ALLOW_CREDENTIALS = True
+
+# CSRF Configuration
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = False  # True in production with HTTPS
+CSRF_COOKIE_SECURE = False     # True in production with HTTPS
+CSRF_COOKIE_HTTPONLY = False   # Must be False so JS can read it
+
+# ✅ IMPORTANT: Allow credentials in CORS
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -113,11 +142,9 @@ AUTH_USER_MODEL = 'userAuth.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'userAuth.tokenAuth.JWTAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication'
-    ]
+        'userAuth.tokenAuth.JWTAuthentication', 
+    ],
 }
-
 
 
 
