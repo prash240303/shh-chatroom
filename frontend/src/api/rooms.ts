@@ -13,7 +13,6 @@ export const fetchRooms = async (): Promise<Room[]> => {
     const res = await http.get("/rooms/");
     return res.data.rooms;
   } catch (error: any) {
-    console.error("❌ FETCH ROOMS FAILED:", error.message);
     throw error;
   }
 };
@@ -26,7 +25,6 @@ export const createRoom = async (roomName: string) => {
     });
     return res.data;
   } catch (error: any) {
-    console.error("❌ CREATE ROOM FAILED:", error.message);
     throw error;
   }
 };
@@ -37,7 +35,6 @@ export const deleteRoom = async (room_id: string) => {
     const res = await http.delete(`/room/delete/${room_id}/`);
     return res.data;
   } catch (error: any) {
-    console.error("❌ DELETE ROOM FAILED:", error.message);
     throw error;
   }
 };
@@ -48,7 +45,6 @@ export const joinRoom = async (room_id: string) => {
     const res = await http.post("/room/join/", { room_id });
     return res.data;
   } catch (error: any) {
-    console.error("❌ JOIN ROOM FAILED:", error.message);
     throw error;
   }
 };

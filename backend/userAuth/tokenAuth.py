@@ -22,11 +22,11 @@ class JWTWebsocketMiddleware:
     """
     async def __call__(self, scope, receive, send):
         print("=" * 60)
-        print("🔌 WEBSOCKET CONNECTION ATTEMPT")
+        print("WEBSOCKET CONNECTION ATTEMPT")
         
         # Log the token for debugging
         query_string = scope.get('query_string', b'').decode('utf-8')
-        print(f"🔍 Query String: {query_string}")
+        print(f"Query String: {query_string}")
         logger.debug(f"WebSocket connection request with query string: {query_string}")
         
         # Extract token from query string or headers
@@ -35,13 +35,13 @@ class JWTWebsocketMiddleware:
         # Try to get token from query string (e.g., ?token=xxx)
         if 'token=' in query_string:
             token = query_string.split('token=')[1].split('&')[0]
-            print(f"🔑 Token from query string: {token[:20]}...")
+            print(f"Token from query string: {token[:20]}...")
         
         # Try to get token from cookies (if available in scope)
         if not token and 'cookies' in scope:
             cookies = scope.get('cookies', {})
             token = cookies.get('access_token')
-            print(f"🍪 Token from cookies: {token[:20] if token else 'None'}...")
+            print(f"Token from cookies: {token[:20] if token else 'None'}...")
         
         if token:
             try:
@@ -50,21 +50,21 @@ class JWTWebsocketMiddleware:
                 payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
                 
                 if payload.get("type") != "access":
-                    print("❌ Invalid token type for WebSocket")
+                    print("Invalid token type for WebSocket")
                     logger.warning("Invalid token type for WebSocket")
                     scope['user'] = None
                 else:
                     user_id = payload.get("id")
                     user = await database_sync_to_async(User.objects.get)(id=user_id)
                     scope['user'] = user
-                    print(f"✅ WebSocket authenticated for user: {user.email}")
+                    print(f"WebSocket authenticated for user: {user.email}")
                     logger.info(f"WebSocket authenticated for user: {user.email}")
             except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, User.DoesNotExist) as e:
-                print(f"❌ WebSocket authentication failed: {str(e)}")
+                print(f"WebSocket authentication failed: {str(e)}")
                 logger.warning(f"WebSocket authentication failed: {str(e)}")
                 scope['user'] = None
         else:
-            print("❌ No token found for WebSocket")
+            print("No token found for WebSocket")
             scope['user'] = None
         
         print("=" * 60)
@@ -86,7 +86,7 @@ class JWTAuthentication(BaseAuthentication):
         print(f"🔧 Method: {request.method}")
         
         # Print all cookies
-        print(f"🍪 All Cookies: {dict(request.COOKIES)}")
+        print(f"All Cookies: {dict(request.COOKIES)}")
         
         # Print all headers
         print("📋 Request Headers:")
@@ -101,10 +101,10 @@ class JWTAuthentication(BaseAuthentication):
         token = request.COOKIES.get('access_token')
         
         if token:
-            print(f"✅ Access token found in cookie: {token[:30]}...")
+            print(f"Access token found in cookie: {token[:30]}...")
             logger.info(f"Access token from cookie: {token[:30]}...")
         else:
-            print("❌ No access_token cookie found")
+            print("No access_token cookie found")
         
         # Fallback to Authorization header (for backward compatibility or testing)
         if not token:
@@ -112,13 +112,13 @@ class JWTAuthentication(BaseAuthentication):
             auth_header = request.headers.get('Authorization')
             if auth_header and auth_header.startswith('Bearer '):
                 token = auth_header.split(' ')[1]
-                print(f"✅ Access token found in header: {token[:30]}...")
+                print(f"Access token found in header: {token[:30]}...")
             else:
-                print("❌ No Bearer token in Authorization header")
+                print("No Bearer token in Authorization header")
         
         # If no token found, return None (not authenticated)
         if not token:
-            print("❌ NO TOKEN FOUND - User not authenticated")
+            print("NO TOKEN FOUND - User not authenticated")
             print("=" * 60 + "\n")
             return None
 
@@ -126,7 +126,7 @@ class JWTAuthentication(BaseAuthentication):
             print("🔓 Decoding JWT token...")
             # Decode the token
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-            print(f"✅ Token decoded successfully")
+            print(f"Token decoded successfully")
             print(f"📦 Payload: {payload}")
 
             # Verify token type
@@ -134,7 +134,7 @@ class JWTAuthentication(BaseAuthentication):
             print(f"🏷️  Token type: {token_type}")
             
             if token_type != "access":
-                print(f"❌ Invalid token type: {token_type} (expected 'access')")
+                print(f"Invalid token type: {token_type} (expected 'access')")
                 raise AuthenticationFailed("Invalid token type")
 
             # Get user from database
@@ -142,29 +142,29 @@ class JWTAuthentication(BaseAuthentication):
             print(f"🔍 Looking up user with ID: {user_id}")
             
             user = User.objects.get(id=user_id)
-            print(f"✅ USER AUTHENTICATED: {user.email}")
+            print(f"USER AUTHENTICATED: {user.email}")
             print("=" * 60 + "\n")
             
             # Return tuple of (user, None)
             return (user, None)
 
         except jwt.ExpiredSignatureError:
-            print("❌ ACCESS TOKEN EXPIRED")
+            print("ACCESS TOKEN EXPIRED")
             print("=" * 60 + "\n")
             raise AuthenticationFailed("Access token expired")
 
         except jwt.InvalidTokenError as e:
-            print(f"❌ INVALID TOKEN: {str(e)}")
+            print(f"INVALID TOKEN: {str(e)}")
             print("=" * 60 + "\n")
             raise AuthenticationFailed("Invalid token")
             
         except User.DoesNotExist:
-            print(f"❌ USER NOT FOUND: ID {payload.get('id')}")
+            print(f"USER NOT FOUND: ID {payload.get('id')}")
             print("=" * 60 + "\n")
             raise AuthenticationFailed("User not found")
         
         except Exception as e:
-            print(f"❌ UNEXPECTED ERROR: {str(e)}")
+            print(f"UNEXPECTED ERROR: {str(e)}")
             print("=" * 60 + "\n")
             raise AuthenticationFailed(f"Authentication error: {str(e)}")
     
@@ -184,7 +184,7 @@ class JWTAuthentication(BaseAuthentication):
         payload['exp'] = expiration
         payload['type'] = token_type
         token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-        print(f"✅ Token generated: {token[:30]}...")
+        print(f"Token generated: {token[:30]}...")
         return token
 
     def extract_token_from_cookie(self, request):
@@ -192,7 +192,7 @@ class JWTAuthentication(BaseAuthentication):
         Extract access token from httpOnly cookie
         """
         token = request.COOKIES.get('access_token')
-        print(f"🍪 Extracting token from cookie: {token[:30] if token else 'None'}...")
+        print(f"Extracting token from cookie: {token[:30] if token else 'None'}...")
         return token
     
     def extract_token_from_header(self, request):
@@ -202,9 +202,9 @@ class JWTAuthentication(BaseAuthentication):
         auth_header = request.headers.get('Authorization')
         if auth_header and auth_header.startswith('Bearer '):
             token = auth_header.split(' ')[1]
-            print(f"📋 Extracting token from header: {token[:30]}...")
+            print(f"Extracting token from header: {token[:30]}...")
             return token
-        print("❌ No token in Authorization header")
+        print("No token in Authorization header")
         return None
 
     def verify_token(self, token):
@@ -220,7 +220,7 @@ class JWTAuthentication(BaseAuthentication):
             
             # Check if expiration exists
             if "exp" not in payload:
-                print("❌ Token has no expiration time")
+                print("Token has no expiration time")
                 raise InvalidTokenError("Token has no expiration time")
             
             # Check if token is expired (jwt.decode already does this, but explicit check)
@@ -228,17 +228,17 @@ class JWTAuthentication(BaseAuthentication):
             curr_timestamp = datetime.utcnow().timestamp()
             
             if curr_timestamp > expiration_timestamp:
-                print("❌ Token has expired")
+                print("Token has expired")
                 raise ExpiredSignatureError("Token has expired")
             
-            print("✅ Token is valid")
+            print("Token is valid")
             return payload
             
         except jwt.ExpiredSignatureError:
-            print("❌ Token expired during verification")
+            print("Token expired during verification")
             raise ExpiredSignatureError("Token has expired")
         except jwt.InvalidTokenError as e:
-            print(f"❌ Invalid token during verification: {str(e)}")
+            print(f"Invalid token during verification: {str(e)}")
             raise InvalidTokenError(f"Invalid token: {str(e)}")
     
 
@@ -257,26 +257,26 @@ class JWTAuthentication(BaseAuthentication):
             
             # Verify token type
             if payload.get("type") != "access":
-                print("❌ Invalid token type for WebSocket")
+                print("Invalid token type for WebSocket")
                 raise AuthenticationFailed("Invalid token type")
             
             # Get user ID from payload
             user_id = payload.get("id")
             if not user_id:
-                print("❌ Invalid token payload - no user ID")
+                print("Invalid token payload - no user ID")
                 raise AuthenticationFailed("Invalid token payload")
             
             # Fetch user from database
             user = User.objects.get(id=user_id)
-            print(f"✅ WebSocket user authenticated: {user.email}")
+            print(f"WebSocket user authenticated: {user.email}")
             return user
             
         except jwt.ExpiredSignatureError:
-            print("❌ WebSocket token expired")
+            print("WebSocket token expired")
             raise AuthenticationFailed("Access token expired")
         except jwt.InvalidTokenError as e:
-            print(f"❌ WebSocket invalid token: {str(e)}")
+            print(f"WebSocket invalid token: {str(e)}")
             raise AuthenticationFailed("Invalid token")
         except User.DoesNotExist:
-            print(f"❌ WebSocket user not found: ID {user_id}")
+            print(f"WebSocket user not found: ID {user_id}")
             raise AuthenticationFailed("User not found")

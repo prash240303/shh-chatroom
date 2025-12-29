@@ -65,9 +65,9 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [roomToDelete, setRoomToDelete] = useState<string | null>(null);
 
-  console.log("list of rooms", rooms);
-  console.log("curr", currentColorTheme);
-  console.log("selected room", selectedRoom);
+  // console.log("list of rooms", rooms);
+  // console.log("curr", currentColorTheme);
+  // console.log("selected room", selectedRoom);
 
   const handleCreateRoom = async () => {
     console.log("Starting room creation process...");

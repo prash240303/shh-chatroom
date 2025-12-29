@@ -8,19 +8,19 @@ from asgiref.sync import sync_to_async
 class PersonalChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         print("\n" + "=" * 60)
-        print("🔌 WEBSOCKET CONSUMER - Connection Handler")
+        print("WEBSOCKET CONSUMER - Connection Handler")
         
         # User is already authenticated by middleware
         request_user = self.scope.get('user')
         
         if not request_user or not request_user.is_authenticated:
-            print("❌ User not authenticated (middleware should have blocked this)")
+            print("User not authenticated (middleware should have blocked this)")
             print("=" * 60 + "\n")
             await self.close(code=4001)
             return
         
         self.user = request_user
-        print(f"✅ User from middleware: {request_user.email}")
+        print(f"User from middleware: {request_user.email}")
         
         # Accept the connection
         await self.accept()
@@ -29,7 +29,7 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
         room_id = self.scope['url_route']['kwargs']['room_id']
         self.room_group_name = f"chat_{room_id}"
         
-        print(f"📍 Joining room: {self.room_group_name}")
+        print(f"Joining room: {self.room_group_name}")
         
         # Join room group
         await self.channel_layer.group_add(
@@ -38,7 +38,7 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
         )
         
         # Fetch and send message history
-        print("📜 Fetching message history...")
+        print("Fetching message history...")
         history = await sync_to_async(self.fetch_message_history)()
         
         await self.send(text_data=json.dumps({
@@ -46,15 +46,15 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
             "messages": history
         }))
         
-        print(f"✅ Sent {len(history)} messages from history")
+        print(f"Sent {len(history)} messages from history")
         print("=" * 60 + "\n")
 
     async def disconnect(self, close_code):
         print("\n" + "=" * 60)
-        print(f"🔌 WEBSOCKET DISCONNECTING - Code: {close_code}")
+        print(f"WEBSOCKET DISCONNECTING - Code: {close_code}")
         
         if hasattr(self, 'room_group_name'):
-            print(f"📍 Leaving room: {self.room_group_name}")
+            print(f"Leaving room: {self.room_group_name}")
             await self.channel_layer.group_discard(
                 self.room_group_name,
                 self.channel_name
@@ -112,16 +112,16 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
                     }
                 )
                 
-                print(f"✅ Message broadcasted to room: {self.room_group_name}")
+                print(f"Message broadcasted to room: {self.room_group_name}")
                 
         except json.JSONDecodeError:
-            print(f"❌ Invalid JSON received: {text_data}")
+            print(f"Invalid JSON received: {text_data}")
             await self.send(text_data=json.dumps({
                 "type": "error", 
                 "message": "Invalid JSON format."
             }))
         except Exception as e:
-            print(f"❌ Error receiving message: {e}")
+            print(f"Error receiving message: {e}")
             await self.send(text_data=json.dumps({
                 "type": "error", 
                 "message": "An error occurred."

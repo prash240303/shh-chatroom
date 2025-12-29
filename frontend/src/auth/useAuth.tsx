@@ -25,37 +25,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Initial session check
   useEffect(() => {
     const checkAuth = async () => {
+      console.log("Checking authentication on mount...");
       const hasSessionHint = localStorage.getItem("userEmailKey");
 
       if (hasSessionHint) {
-        // We attempt to validity the session by refreshing the token
-        // or making a lightweight auth check.
-        // If the access token is still valid, this refresh call might be redundant but safe
-        // OR we can rely on making an API call to /me but we don't have one.
-        // For now, attempting a refresh is a good way to verify the httpOnly cookie exists.
+        console.log("Verifying session with token refresh...");
         const success = await refreshToken();
+        
         if (success) {
+          console.log("Session verified - user authenticated");
           setIsAuthenticated(true);
         } else {
-          // If refresh fails, clear the hint
+          console.log("Session invalid - clearing and redirecting");
           localStorage.removeItem("userEmailKey");
           setIsAuthenticated(false);
+          // Don't navigate here - let ProtectedRoute handle it
         }
+      } else {
+        setIsAuthenticated(false);
       }
+      
       setIsLoading(false);
     };
 
     checkAuth();
-  }, []);
+  }, [navigate]);
 
   const logout = useCallback(async () => {
     try {
       await logoutUser();
+      console.log("Logout successful");
     } catch (err) {
-      console.error("Logout failed:", err);
+      console.error("Logout error:", err);
     } finally {
       setIsAuthenticated(false);
       localStorage.removeItem("userEmailKey");

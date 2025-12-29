@@ -16,6 +16,19 @@ function getCsrfToken(): string | null {
   return null;
 }
 
+// Helper function to get access token from cookies
+function getAccessToken(): string | null {
+  const name = 'access_token';
+  const cookies = document.cookie.split(';');
+  for (let cookie of cookies) {
+    const [key, value] = cookie.trim().split('=');
+    if (key === name) {
+      return decodeURIComponent(value);
+    }
+  }
+  return null;
+}
+
 const http = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
@@ -53,10 +66,10 @@ http.interceptors.request.use(
       config.headers['X-CSRFToken'] = csrfToken;
     }
     
-    // Optional: Dev logs only in dev mode
-    if (import.meta.env.DEV) {
-      console.log(`🚀 ${config.method?.toUpperCase()} ${config.url}`);
-    }
+    // Log the access token being sent
+    const currentAccessToken = getAccessToken();
+    console.log(`${config.method?.toUpperCase()} ${config.url}`);
+    console.log(`Access token in request:`, currentAccessToken ? currentAccessToken.substring(0, 50) + '...' : 'NO TOKEN');
     
     return config;
   },
@@ -76,18 +89,28 @@ http.interceptors.response.use(
     };
 
     // If error is not 401 or request was already retried, reject
-    // Also reject if there is no originalRequest (should rarely happen)
     if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
+      console.log(`Request failed with status ${error.response?.status}:`, originalRequest?.url);
       return Promise.reject(error);
     }
 
+    console.log(`401 UNAUTHORIZED on ${originalRequest.url}`);
+    console.log(`Old access token (expired):`, getAccessToken()?.substring(0, 50) + '...');
+
     // If we are already refreshing, add this request to the queue
     if (isRefreshing) {
+      console.log(`Already refreshing token, adding request to queue...`);
       return new Promise((resolve, reject) => {
         failedQueue.push({
           resolve: () => {
-             // Once resolved, we retry the original request
-             resolve(http(originalRequest));
+            console.log(`Retrying queued request: ${originalRequest.url}`);
+            const newToken = getAccessToken();
+            console.log(`New access token for queued request:`, newToken?.substring(0, 50) + '...');
+            
+            // CRITICAL: Remove old Cookie header to let browser send fresh cookies
+            delete originalRequest.headers.Cookie;
+            
+            resolve(http(originalRequest));
           },
           reject: (err) => {
             reject(err || error);
@@ -100,7 +123,7 @@ http.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      console.log("🔄 Access token expired, attempting token refresh...");
+      console.log("Access token expired, attempting token refresh...");
       
       const refreshResponse = await fetch(`${BASE_URL}refresh/`, {
         method: "POST",
@@ -112,14 +135,28 @@ http.interceptors.response.use(
       });
 
       if (refreshResponse.ok) {
-        console.log("✅ Token refresh successful");
+        console.log("Token refresh successful");
+        
+        // Wait a tiny bit to ensure cookies are set
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        const newAccessToken = getAccessToken();
+        console.log(`New access token after refresh:`, newAccessToken?.substring(0, 50) + '...');
+        
+        // CRITICAL: Remove the old Cookie header from the original request
+        // This allows the browser to automatically include the fresh cookies
+        delete originalRequest.headers.Cookie;
+        
         processQueue(null, true);
+        
+        console.log(`Retrying original request: ${originalRequest.url}`);
         return http(originalRequest);
       } else {
+        console.error("Refresh response not OK:", refreshResponse.status);
         throw new Error("Refresh failed");
       }
     } catch (refreshError) {
-      console.error("❌ Token refresh failed, logging out:", refreshError);
+      console.error("Token refresh failed, logging out:", refreshError);
       processQueue(refreshError, false);
       localStorage.removeItem("userEmailKey");
       window.location.href = "/login";
@@ -130,8 +167,6 @@ http.interceptors.response.use(
   }
 );
 
-// We export the setRefreshTokenHandler as a no-op or removed if no longer needed.
-// To avoid breaking existing imports immediately, we can export a dummy or update `useAuth` to stop using it.
 export const setRefreshTokenHandler = (_handler: () => Promise<boolean>) => {
   console.warn("setRefreshTokenHandler is deprecated. http.ts manages refresh internally.");
 };

@@ -49,7 +49,7 @@ SESSION_COOKIE_SECURE = False  # True in production with HTTPS
 CSRF_COOKIE_SECURE = False     # True in production with HTTPS
 CSRF_COOKIE_HTTPONLY = False   # Must be False so JS can read it
 
-# ✅ IMPORTANT: Allow credentials in CORS
+# IMPORTANT: Allow credentials in CORS
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
