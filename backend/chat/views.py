@@ -6,7 +6,7 @@ from .models import Message, Rooms, RoomParticipant
 from rest_framework.permissions import IsAuthenticated
 from userAuth.tokenAuth import JWTAuthentication
 User = get_user_model()
-
+from rest_framework import status
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication]) 
@@ -17,10 +17,10 @@ def get_user_list(request):
     try:
         user_obj = User.objects.exclude(id=request.user.id)
         serializer = UserGetSerializer(user_obj, many=True)
-        return Response(serializer.data, status=200)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
         print("Error getting the list of users:", str(e))
-        return Response({"error": "Error getting user list"}, status=400)
+        return Response({"error": "Error getting user list"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -46,10 +46,10 @@ def get_messages(request, room_name):
             ]
         }
 
-        return Response(response_data, status=200)
+        return Response(response_data, status=status.HTTP_200_OK)
     except Exception as e:
         print(f"Error fetching messages: {str(e)}")
-        return Response({"error": "Error fetching messages"}, status=400)
+        return Response({"error": "Error fetching messages"}, status=status.HTTP_400_BAD_REQUEST)
 
         
 @api_view(['POST'])
@@ -61,7 +61,7 @@ def send_message(request, room_name):
     try:
         message_text = request.data.get('message')
         if not message_text:
-            return Response({"error": "Message field is required"}, status=400)
+            return Response({"error": "Message field is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         room_group_name = f"chat_{room_name}"
 
@@ -72,10 +72,10 @@ def send_message(request, room_name):
         )
 
         serializer = MessageSerializer(message)
-        return Response(serializer.data, status=201)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     except Exception as e:
         print("Error sending message:", str(e))
-        return Response({"error": "Error sending message"}, status=500)
+        return Response({"error": "Error sending message"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
@@ -107,11 +107,11 @@ def get_user_rooms(request):
             "rooms": rooms_data,
             "count": len(rooms_data),
             "message": "No rooms found" if len(rooms_data) == 0 else "Rooms fetched successfully"
-        }, status=200)
+        }, status=status.HTTP_200_OK)
         
     except Exception as e:
         print(f"Error fetching user rooms: {str(e)}")
-        return Response({"error": "Error fetching user rooms"}, status=400)
+        return Response({"error": "Error fetching user rooms"}, status=status.HTTP_400_BAD_REQUEST)
 
         
 @api_view(['POST'])
@@ -123,10 +123,10 @@ def create_room(request):
     try:
         chat_room_name = request.data.get('chat_room_name')
         if not chat_room_name:
-            return Response({"error": "Chat room name is required"}, status=400)
+            return Response({"error": "Chat room name is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         if Rooms.objects.filter(chat_room_name=chat_room_name).exists():
-            return Response({"error": "A room with this name already exists"}, status=400)
+            return Response({"error": "A room with this name already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Create the room
         room = Rooms.objects.create(chat_room_name=chat_room_name)
@@ -140,13 +140,13 @@ def create_room(request):
             "created_by": {
                 "id": str(request.user.id),
                 "email": request.user.email,
-                "username": getattr(request.user, 'username', request.user.email.split('@')[0])
+                "username": request.user.username
             },
             "created_at": room.created_at.isoformat()
-        }, status=201)
+        }, status=status.HTTP_201_CREATED)
     except Exception as e:
         print(f"Error creating room: {e}")
-        return Response({"error": "Error creating room"}, status=500)
+        return Response({"error": "Error creating room"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     
 @api_view(['POST'])
@@ -158,11 +158,11 @@ def join_room(request):
     try:
         room_id = request.data.get('room_id')
         if not room_id:
-            return Response({"error": "Room ID is required"}, status=400)
+            return Response({"error": "Room ID is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         room = Rooms.objects.filter(room_id=room_id).first()
         if not room:
-            return Response({"error": "Room not found"}, status=404)
+            return Response({"error": "Room not found"}, status=status.HTTP_404_NOT_FOUND)
 
         participant, created = RoomParticipant.objects.get_or_create(room=room, user=request.user)
         
@@ -178,10 +178,10 @@ def join_room(request):
                 "email": request.user.email,
                 "username": getattr(request.user, 'username', request.user.email.split('@')[0])
             }
-        }, status=200)
+        }, status=status.HTTP_200_OK)
     except Exception as e:
         print(f"Error joining room: {str(e)}")
-        return Response({"error": "Error joining room"}, status=500)
+        return Response({"error": "Error joining room"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['DELETE'])
@@ -194,7 +194,7 @@ def delete_room(request, room_id):
     try:
         room = Rooms.objects.filter(room_id=room_id).first()
         if not room:
-            return Response({"error": "Room not found"}, status=404)
+            return Response({"error": "Room not found"}, status=status.HTTP_404_NOT_FOUND)
 
         # Optional: Check if user is room creator
         # first_participant = RoomParticipant.objects.filter(room=room).order_by('joined_at').first()
@@ -207,7 +207,7 @@ def delete_room(request, room_id):
             "deleted_room": {
                 "room_id": str(room_id),
             }
-        }, status=200)
+        }, status=status.HTTP_200_OK)
     except Exception as e:
         print(f"Error deleting room: {str(e)}")
-        return Response({"error": "Error deleting room"}, status=500)
+        return Response({"error": "Error deleting room"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
