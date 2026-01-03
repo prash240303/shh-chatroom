@@ -13,6 +13,7 @@ import jwt
 from django.conf import settings
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework import status
 
 User = get_user_model()  
 
@@ -20,21 +21,22 @@ User = get_user_model()
 @api_view(['POST'])
 def register_user(request):
     serializer = UserSerializer(data=request.data)
- 
-    if serializer.is_valid():
-     serializer.save()  
-     return Response(serializer.data, status=201)
+    serializer.is_valid(raise_exception=True)
+    user = serializer.save()
 
-    return Response(serializer.errors, status=400)
-
-
+    return Response(
+        {
+            "user": UserSerializer(user).data,
+            "message": "Registration successful"
+        },
+        status=status.HTTP_201_CREATED
+    )
+    
 @api_view(["POST"])
 @csrf_exempt
 def login_user(request):
     serializer = LoginSerializer(data=request.data)
-
-    if not serializer.is_valid():
-        return Response(serializer.errors, status=400)
+    serializer.is_valid(raise_exception=True)
 
     user = serializer.validated_data["user"]
 
@@ -46,7 +48,7 @@ def login_user(request):
             "user": UserSerializer(user).data,
             "message": "Login successful"
         },
-        status=200,
+        status=status.HTTP_200_OK,
     )
 
     # Set access token as httpOnly cookie
@@ -59,7 +61,7 @@ def login_user(request):
         path="/",
         max_age=15 * 60,  # 15 minutes
     )
-    print(f"   ✓ access_token set (SameSite=None for cross-origin)")
+    print(f"access_token set (SameSite=None for cross-origin)")
 
     # Set refresh token as httpOnly cookie
     response.set_cookie(
@@ -71,7 +73,7 @@ def login_user(request):
         path="/",  # Changed from "/refresh" to "/" so it's sent with all requests
         max_age=7 * 24 * 60 * 60,
     )
-    print(f"   ✓ refresh_token set (SameSite=None for cross-origin)")
+    print(f"refresh_token set (SameSite=None for cross-origin)")
     print("=" * 60 + "\n")
 
     return response
