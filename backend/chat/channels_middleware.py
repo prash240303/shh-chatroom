@@ -5,7 +5,6 @@ from django.db import close_old_connections
 from jwt import ExpiredSignatureError, InvalidTokenError, decode
 from django.conf import settings
 from userAuth.models import User
-from urllib.parse import parse_qs
 
 
 class JWTWebsocketMiddleware:
@@ -16,9 +15,6 @@ class JWTWebsocketMiddleware:
         self.inner = inner
 
     async def __call__(self, scope, receive, send):
-        print("\n" + "=" * 60)
-        print("WEBSOCKET MIDDLEWARE - Authentication Check")
-        
         # Ensure old database connections are closed
         close_old_connections()
 
@@ -26,34 +22,24 @@ class JWTWebsocketMiddleware:
         headers = dict(scope.get("headers", []))
         cookie_header = headers.get(b"cookie", b"").decode("utf-8")
         
-        print(f"Cookie header: {cookie_header[:100] if cookie_header else 'None'}...")
         
         # Parse cookies
         cookies = self.parse_cookies(cookie_header)
         token = cookies.get("access_token")
 
         if not token:
-            print("No access_token found in cookies - closing with code 4000")
-            print("=" * 60 + "\n")
             await send({"type": "websocket.close", "code": 4000})
             return
-
-        print(f"Access token found: {token[:30]}...")
 
         try:
             user = await self.authenticate_user(token)
             scope['user'] = user
-            print(f"User authenticated: {user.email}")
-            print("=" * 60 + "\n")
+            
         except ExpiredSignatureError:
             # Close with 4001 to trigger frontend token refresh
-            print("Access token expired - closing with code 4001 (will trigger refresh)")
-            print("=" * 60 + "\n")
             await send({"type": "websocket.close", "code": 4001})
             return
         except AuthenticationFailed as e:
-            print(f"Authentication failed: {e} - closing with code 4002")
-            print("=" * 60 + "\n")
             await send({"type": "websocket.close", "code": 4002})
             return
 

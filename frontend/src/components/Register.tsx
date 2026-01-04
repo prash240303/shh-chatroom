@@ -1,14 +1,15 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import toast from "react-hot-toast"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useNavigate } from "react-router-dom"
-import { Mail, Lock, User, ArrowRight } from "lucide-react"
-import { Logo } from "../../public/Logo"
+import toast from "react-hot-toast";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
+import { Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Logo } from "../../public/Logo";
+import { devLog, devError } from "@/lib/logger";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -16,16 +17,16 @@ export default function Register() {
     password: "",
     first_name: "",
     last_name: "",
-  })
-  const [isLoading, setIsLoading] = useState(false)
-  const navigate = useNavigate()
-  const BASE_URL = "http://127.0.0.1:8000/"
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const BASE_URL = "http://127.0.0.1:8000/";
 
   async function handleFormSubmission(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
-    console.log("data collected ", formData)
+    devLog("data collected ", formData);
     try {
       const response = await fetch(`${BASE_URL}register/`, {
         method: "POST",
@@ -33,19 +34,19 @@ export default function Register() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-      })
+      });
 
       if (!response.ok) {
-        toast.error("Email already registered")
+        toast.error("Email already registered");
       } else {
-        toast.success("Registration successful!")
-        navigate("/")
+        toast.success("Registration successful!");
+        navigate("/");
       }
     } catch (error) {
-      toast.error("Something went wrong. Please try again later.")
-      console.error("Error:", error)
+      toast.error("Something went wrong. Please try again later.");
+      devError("Error:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -62,9 +63,12 @@ export default function Register() {
             </div>
 
             <div className="space-y-4 pt-4 max-w-72 text-left">
-              <h2 className="text-3xl font-bold leading-tight text-foreground">Join our community</h2>
+              <h2 className="text-3xl font-bold leading-tight text-foreground">
+                Join our community
+              </h2>
               <p className="text-muted-foreground">
-                Create your account to start chatting securely with friends and colleagues
+                Create your account to start chatting securely with friends and
+                colleagues
               </p>
             </div>
 
@@ -77,7 +81,9 @@ export default function Register() {
               ].map((feature, idx) => (
                 <div key={idx} className="flex items-center gap-3">
                   <div className="text-xl">{feature.icon}</div>
-                  <span className="text-sm text-muted-foreground">{feature.text}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {feature.text}
+                  </span>
                 </div>
               ))}
             </div>
@@ -89,20 +95,28 @@ export default function Register() {
             href="/login"
             className="text-sm absolute right-6 top-6 text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
           >
-            Already have an account? <span className="text-primary font-medium">Login</span>
+            Already have an account?{" "}
+            <span className="text-primary font-medium">Login</span>
           </a>
 
           <div className="w-full max-w-sm space-y-8">
             {/* Header */}
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">Create account</h1>
-              <p className="text-sm text-muted-foreground">Sign up to get started with our secure chat platform</p>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                Create account
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Sign up to get started with our secure chat platform
+              </p>
             </div>
 
             <form onSubmit={handleFormSubmission} className="space-y-5">
               {/* Full Name Input */}
               <div className="space-y-2">
-                <label htmlFor="full_name" className="text-sm font-medium text-foreground flex items-center gap-2">
+                <label
+                  htmlFor="full_name"
+                  className="text-sm font-medium text-foreground flex items-center gap-2"
+                >
                   <User className="w-4 h-4 text-primary" />
                   Full Name
                 </label>
@@ -116,13 +130,14 @@ export default function Register() {
                       : ""
                   }
                   onChange={(e) => {
-                    const [firstname, ...lastnameParts] = e.target.value.split(" ")
-                    const lastname = lastnameParts.join(" ")
+                    const [firstname, ...lastnameParts] =
+                      e.target.value.split(" ");
+                    const lastname = lastnameParts.join(" ");
                     setFormData({
                       ...formData,
                       first_name: firstname || "",
                       last_name: lastname || "",
-                    })
+                    });
                   }}
                   className="w-full bg-input border border-border text-foreground placeholder:text-muted-foreground rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
                 />
@@ -130,7 +145,10 @@ export default function Register() {
 
               {/* Email Input */}
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-foreground flex items-center gap-2">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-foreground flex items-center gap-2"
+                >
                   <Mail className="w-4 h-4 text-primary" />
                   Email Address
                 </label>
@@ -139,14 +157,19 @@ export default function Register() {
                   type="email"
                   placeholder="name@example.com"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className="w-full bg-input border border-border text-foreground placeholder:text-muted-foreground rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
                 />
               </div>
 
               {/* Password Input */}
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-foreground flex items-center gap-2">
+                <label
+                  htmlFor="password"
+                  className="text-sm font-medium text-foreground flex items-center gap-2"
+                >
                   <Lock className="w-4 h-4 text-primary" />
                   Password
                 </label>
@@ -155,7 +178,9 @@ export default function Register() {
                   type="password"
                   placeholder="Create a strong password"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   className="w-full bg-input border border-border text-foreground placeholder:text-muted-foreground rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
                 />
               </div>
@@ -173,7 +198,10 @@ export default function Register() {
             {/* Divider and login link */}
             <div className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <a href="/login" className="text-primary hover:underline font-medium">
+              <a
+                href="/login"
+                className="text-primary hover:underline font-medium"
+              >
                 Log in here
               </a>
             </div>
@@ -181,5 +209,5 @@ export default function Register() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.decorators import api_view, authentication_classes
 from django.contrib.auth import get_user_model
 from chat.serializers import UserGetSerializer, MessageSerializer
 from rest_framework.response import Response

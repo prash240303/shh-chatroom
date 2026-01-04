@@ -2,6 +2,7 @@
 import { Message } from "@/types/chat-types";
 import { useEffect, useRef, useState } from "react";
 import { refreshToken } from "@/api/auth";
+import { devError, devLog, devWarn } from "@/lib/logger";
 
 export const useChatWebSocket = (selectedRoom?: {
   roomname: string;
@@ -33,7 +34,8 @@ export const useChatWebSocket = (selectedRoom?: {
 
     const handleTokenRefresh = async (): Promise<boolean> => {
       if (isRefreshingRef.current) {
-        console.log("Already refreshing token, waiting...");
+
+        devLog("Already refreshing token, waiting...");
         // Wait for ongoing refresh
         await new Promise(resolve => setTimeout(resolve, 500));
         return true;
@@ -51,10 +53,10 @@ export const useChatWebSocket = (selectedRoom?: {
           return true;
         }
         
-        console.error("Token refresh failed");
+        devError("Token refresh failed");
         return false;
       } catch (error) {
-        console.error("Token refresh error:", error);
+        devError("Token refresh error:", error);
         return false;
       } finally {
         isRefreshingRef.current = false;
@@ -68,14 +70,14 @@ export const useChatWebSocket = (selectedRoom?: {
       // DON'T pass token in URL - Django middleware reads from cookies
       const socketUrl = `${wsProtocol}//${wsHost}/ws/chat/${selectedRoom.roomid}/`;
       
-      console.log(" Connecting WebSocket to:", socketUrl);
-      console.log(" Using httpOnly cookies for authentication");
+      devLog(" Connecting WebSocket to:", socketUrl);
+      devLog(" Using httpOnly cookies for authentication");
 
       const socket = new WebSocket(socketUrl);
       socketRef.current = socket;
 
       socket.onopen = () => {
-        console.log("WebSocket connected successfully");
+        devLog("WebSocket connected successfully");
         setConnectionFailed(false);
         reconnectAttemptsRef.current = 0;
       };
@@ -85,21 +87,21 @@ export const useChatWebSocket = (selectedRoom?: {
           const data = JSON.parse(event.data);
           
           if (data.type === "message_history") {
-            console.log("Received message history:", data.messages, "messages");
+            devLog("Received message history:", data.messages, "messages");
             setMessages(data.messages); 
           } else if (data.type === "message") {
-            console.log("New message received");
+            devLog("New message received");
             setMessages((prev) => [...prev, data]); 
           } else if (data.type === "error") {
-            console.error(" WebSocket error from server:", data.message);
+            devError(" WebSocket error from server:", data.message);
           }
         } catch (e) {
-          console.error(" Error parsing WebSocket message:", e);
+          devError(" Error parsing WebSocket message:", e);
         }
       };
 
       socket.onclose = async (event) => {
-        console.warn("WebSocket closed:", {
+        devWarn("WebSocket closed:", {
           code: event.code,
           reason: event.reason,
           wasClean: event.wasClean,
@@ -112,12 +114,12 @@ export const useChatWebSocket = (selectedRoom?: {
         // Code 4000 = No token
         // Code 4002 = Auth failed
         if (event.code === 4001) {
-          console.log("WebSocket closed: Token expired (4001)");
+          devLog("WebSocket closed: Token expired (4001)");
           
           if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
-            console.error("Max reconnection attempts reached");
+            devError("Max reconnection attempts reached");
             setConnectionFailed(true);
-            localStorage.removeItem("userEmailKey");
+            localStorage.removeItem("userSession");
             window.location.href = "/login";
             return;
           }
@@ -127,38 +129,38 @@ export const useChatWebSocket = (selectedRoom?: {
           const refreshSuccess = await handleTokenRefresh();
           
           if (refreshSuccess) {
-            console.log(`Reconnecting with new token (attempt ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})...`);
+            devLog(`Reconnecting with new token (attempt ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})...`);
             reconnectTimeoutRef.current = setTimeout(() => {
               connectWebSocket();
             }, 1000);
           } else {
-            console.error("Token refresh failed - redirecting to login");
+            devError("Token refresh failed - redirecting to login");
             setConnectionFailed(true);
-            localStorage.removeItem("userEmailKey");
+            localStorage.removeItem("userSession");
             window.location.href = "/login";
           }
         } else if (event.code === 4000 || event.code === 4002) {
-          console.error(" WebSocket auth failed (code " + event.code + ") - redirecting to login");
+          devError(" WebSocket auth failed (code " + event.code + ") - redirecting to login");
           setConnectionFailed(true);
-          localStorage.removeItem("userEmailKey");
+          localStorage.removeItem("userSesssion");
           window.location.href = "/login";
         } else if (!event.wasClean) {
           // Other abnormal closures
           if (reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
             reconnectAttemptsRef.current++;
-            console.log(`Reconnecting (attempt ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})...`);
+            devLog(`Reconnecting (attempt ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})...`);
             reconnectTimeoutRef.current = setTimeout(() => {
               connectWebSocket();
             }, 2000);
           } else {
-            console.error("Max reconnection attempts reached");
+            devError("Max reconnection attempts reached");
             setConnectionFailed(true);
           }
         }
       };
 
       socket.onerror = (err) => {
-        console.error("WebSocket error:", err);
+        devError("WebSocket error:", err);
       };
     };
 
@@ -171,7 +173,7 @@ export const useChatWebSocket = (selectedRoom?: {
       }
       
       if (socketRef.current) {
-        console.log("Closing WebSocket (cleanup)");
+        devLog("Closing WebSocket (cleanup)");
         socketRef.current.close(1000, "Component unmounting");
         socketRef.current = null;
       }
@@ -180,7 +182,7 @@ export const useChatWebSocket = (selectedRoom?: {
       isRefreshingRef.current = false;
       reconnectAttemptsRef.current = 0;
     };
-  }, [selectedRoom?.roomid]);
+  }, [selectedRoom]);
 
   return { messages, socketRef, setMessages, connectionFailed };
 };

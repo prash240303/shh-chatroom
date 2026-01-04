@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/auth/useAuth";
 
 export function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { accessToken, isLoading } = useAuth();
+  const {isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -17,7 +17,7 @@ export function PublicRoute({ children }: { children: React.ReactNode }) {
   }
 
   // If already logged in, redirect to home
-  if (accessToken) {
+  if (isAuthenticated) {
     return <Navigate to="/" replace />;
   }
 

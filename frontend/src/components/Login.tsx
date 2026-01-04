@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import http from "@/lib/http";
 import { loginUser } from "@/api/auth";
 import { useAuth } from "@/auth/useAuth";
+import { devError } from "@/lib/logger";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -47,13 +48,13 @@ export default function Login() {
         try {
           await http.post("/room/join/", { room_id: roomId });
         } catch (joinError) {
-          console.error("Failed to join room:", joinError);
+          devError("Failed to join room:", joinError);
         }
       }
 
       navigate("/");
     } catch (error: any) {
-      console.error(error);
+      devError(error);
       const errorMessage =
         error.response?.data?.detail || "Invalid email or password";
       toast.error(errorMessage);

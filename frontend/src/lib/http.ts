@@ -68,8 +68,8 @@
     
 //     // Log the access token being sent
 //     const currentAccessToken = getAccessToken();
-//     console.log(`${config.method?.toUpperCase()} ${config.url}`);
-//     console.log(`Access token in request:`, currentAccessToken ? currentAccessToken.substring(0, 50) + '...' : 'NO TOKEN');
+//     devLog(`${config.method?.toUpperCase()} ${config.url}`);
+//     devLog(`Access token in request:`, currentAccessToken ? currentAccessToken.substring(0, 50) + '...' : 'NO TOKEN');
     
 //     return config;
 //   },
@@ -90,22 +90,22 @@
 
 //     // If error is not 401 or request was already retried, reject
 //     if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
-//       console.log(`Request failed with status ${error.response?.status}:`, originalRequest?.url);
+//       devLog(`Request failed with status ${error.response?.status}:`, originalRequest?.url);
 //       return Promise.reject(error);
 //     }
 
-//     console.log(`401 UNAUTHORIZED on ${originalRequest.url}`);
-//     console.log(`Old access token (expired):`, getAccessToken()?.substring(0, 50) + '...');
+//     devLog(`401 UNAUTHORIZED on ${originalRequest.url}`);
+//     devLog(`Old access token (expired):`, getAccessToken()?.substring(0, 50) + '...');
 
 //     // If we are already refreshing, add this request to the queue
 //     if (isRefreshing) {
-//       console.log(`Already refreshing token, adding request to queue...`);
+//       devLog(`Already refreshing token, adding request to queue...`);
 //       return new Promise((resolve, reject) => {
 //         failedQueue.push({
 //           resolve: () => {
-//             console.log(`Retrying queued request: ${originalRequest.url}`);
+//             devLog(`Retrying queued request: ${originalRequest.url}`);
 //             const newToken = getAccessToken();
-//             console.log(`New access token for queued request:`, newToken?.substring(0, 50) + '...');
+//             devLog(`New access token for queued request:`, newToken?.substring(0, 50) + '...');
             
 //             // CRITICAL: Remove old Cookie header to let browser send fresh cookies
 //             delete originalRequest.headers.Cookie;
@@ -123,7 +123,7 @@
 //     isRefreshing = true;
 
 //     try {
-//       console.log("Access token expired, attempting token refresh...");
+//       devLog("Access token expired, attempting token refresh...");
       
 //       const refreshResponse = await fetch(`${BASE_URL}refresh/`, {
 //         method: "POST",
@@ -135,13 +135,13 @@
 //       });
 
 //       if (refreshResponse.ok) {
-//         console.log("Token refresh successful");
+//         devLog("Token refresh successful");
         
 //         // Wait a tiny bit to ensure cookies are set
 //         await new Promise(resolve => setTimeout(resolve, 100));
         
 //         const newAccessToken = getAccessToken();
-//         console.log(`New access token after refresh:`, newAccessToken?.substring(0, 50) + '...');
+//         devLog(`New access token after refresh:`, newAccessToken?.substring(0, 50) + '...');
         
 //         // CRITICAL: Remove the old Cookie header from the original request
 //         // This allows the browser to automatically include the fresh cookies
@@ -149,16 +149,16 @@
         
 //         processQueue(null, true);
         
-//         console.log(`Retrying original request: ${originalRequest.url}`);
+//         devLog(`Retrying original request: ${originalRequest.url}`);
 //         return http(originalRequest);
 //       } else {
-//         console.error("Refresh response not OK:", refreshResponse.status);
+//         devError("Refresh response not OK:", refreshResponse.status);
 //         throw new Error("Refresh failed");
 //       }
 //     } catch (refreshError) {
-//       console.error("Token refresh failed, logging out:", refreshError);
+//       devError("Token refresh failed, logging out:", refreshError);
 //       processQueue(refreshError, false);
-//       localStorage.removeItem("userEmailKey");
+//       localStorage.removeItem("userSesssion");
 //       window.location.href = "/login";
 //       return Promise.reject(refreshError);
 //     } finally {
@@ -248,9 +248,6 @@ http.interceptors.response.use(
         throw new Error("Refresh failed");
       }
 
-      // Wait for cookies to be set
-      await new Promise(resolve => setTimeout(resolve, 100));
-
       // Clear old cookie header
       delete originalRequest.headers.Cookie;
 
@@ -259,7 +256,7 @@ http.interceptors.response.use(
       return http(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError);
-      localStorage.removeItem("userEmailKey");
+      localStorage.removeItem("userSession")
       window.location.href = "/login";
       return Promise.reject(refreshError);
     } finally {

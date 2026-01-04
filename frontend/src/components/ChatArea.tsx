@@ -7,15 +7,14 @@ import { SidebarTrigger } from "./ui/sidebar";
 import NoRoomSelected from "./NoRoomSelected";
 import { User } from "@/types/chat-types";
 import { useNavigate } from "react-router-dom";
+import { devWarn, devLog } from "@/lib/logger";
 
 const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
   const [message, setMessage] = useState<string>("");
 
   const navigate = useNavigate();
-  const [currUser, setCurrUser] = useState<User>(
-   
-  );
- 
+  const [currUser, setCurrUser] = useState<User | null>(null);
+
   // Memoize room config to prevent unnecessary WebSocket reconnections
   const roomConfig = useMemo<{ roomname: string; roomid: string } | undefined>(
     () =>
@@ -31,15 +30,14 @@ const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
 
   useEffect(() => {
     const user = localStorage.getItem("userSession");
-    console.log("user", user);
+    devLog("user", user);
     if (user) {
       setCurrUser(JSON.parse(user));
-    }
-    else {
-      console.log("user not found")
+    } else {
+      devLog("user not found");
       navigate("/login");
     }
-  }, [navigate]);
+  }, []);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -53,6 +51,10 @@ const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
       socketRef.current &&
       socketRef.current.readyState === WebSocket.OPEN
     ) {
+      if(!currUser){
+        devWarn("User not found");
+        return;
+      }
       const newMessage = {
         type: "message",
         username: currUser?.username,
@@ -64,7 +66,7 @@ const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
       socketRef.current.send(JSON.stringify(newMessage));
       setMessage("");
     } else {
-      console.warn("WebSocket is not open or room not selected.");
+      devWarn("WebSocket is not open or room not selected.");
     }
   };
 
@@ -97,8 +99,8 @@ const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
       {/* Messages */}
       <div className="messages max-w-5xl mt-12 flex-1 overflow-y-auto p-4 w-full">
         {messages.map((msg: Message, index: number) => {
-          console.log("msg", msg);
-          console.log("currUser", currUser);
+          devLog("msg", msg);
+          devLog("currUser", currUser);
           const isSender = msg.username === currUser?.username;
           const isFirstMessageInGroup =
             index === 0 || messages[index - 1]?.username !== msg.username;

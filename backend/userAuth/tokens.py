@@ -1,5 +1,5 @@
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from django.conf import settings
 
 ACCESS_TOKEN_LIFETIME = timedelta(minutes=5)
@@ -10,8 +10,8 @@ def create_access_token(user_id):
     payload = {
         "id": user_id,
         "type": "access",
-        "exp": datetime.utcnow() + ACCESS_TOKEN_LIFETIME,
-        "iat": datetime.utcnow(),
+        "exp": datetime.now(timezone.utc) + ACCESS_TOKEN_LIFETIME,
+        "iat": datetime.now(timezone.utc),
     }
     return jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
 
@@ -20,7 +20,7 @@ def create_refresh_token(user_id):
     payload = {
         "id": user_id,
         "type": "refresh",
-        "exp": datetime.utcnow() + REFRESH_TOKEN_LIFETIME,
-        "iat": datetime.utcnow(),
+        "exp": datetime.now(timezone.utc) + REFRESH_TOKEN_LIFETIME,
+        "iat": datetime.now(timezone.utc),
     }
     return jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")

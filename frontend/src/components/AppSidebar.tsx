@@ -41,7 +41,7 @@ import { ThemeColorToggle } from "./ThemeColorToggle";
 import { ThemeModeToggle } from "./ThemeModeToggle";
 import { getGlobalColorTheme } from "@/lib/theme-colors";
 import { cn } from "@/lib/utils";
-import http from "@/lib/http";
+import { devLog , devError} from "@/lib/logger";
 
 interface AppSidebarProps {
   selectedRoom: {
@@ -65,33 +65,33 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [roomToDelete, setRoomToDelete] = useState<string | null>(null);
 
-  // console.log("list of rooms", rooms);
-  // console.log("curr", currentColorTheme);
-  // console.log("selected room", selectedRoom);
+  // devLog("list of rooms", rooms);
+  // devLog("curr", currentColorTheme);
+  // devLog("selected room", selectedRoom);
 
   const handleCreateRoom = async () => {
-    console.log("Starting room creation process...");
+    devLog("Starting room creation process...");
     if (!newRoomName.trim()) {
-      console.log("Room creation aborted: Empty name");
+      devLog("Room creation aborted: Empty name");
       return;
     }
 
     try {
-      console.log("Sending create room request:", {
+      devLog("Sending create room request:", {
         roomName: newRoomName.trim(),
       });
       const response = await createRoom(newRoomName);
-      console.log("Room creation response:", response);
+      devLog("Room creation response:", response);
 
       await handleFetchRooms();
-      console.log("Room list updated");
+      devLog("Room list updated");
       toast.success("Room created successfully!");
       setNewRoomName("");
       setIsCreateDialogOpen(false);
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.error || "Failed to create room";
-      console.error("Room creation error details:", {
+      devError("Room creation error details:", {
         status: error.response?.status,
         data: error.response?.data,
         message: errorMessage,
@@ -105,7 +105,7 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
     try {
       const roomsData = await fetchRooms();
       setRooms(roomsData);
-      console.log("Fetched rooms:", roomsData);
+      devLog("Fetched rooms:", roomsData);
     } catch (error: any) {
       toast.error(`Failed to fetch rooms: ${error.message}`);
     } finally {
@@ -120,10 +120,10 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
     }
 
     try {
-      console.log("Deleting room with ID:", roomId);
+      devLog("Deleting room with ID:", roomId);
 
       const response = await deleteRoom(roomId);
-      console.log("Room deleted:", response);
+      devLog("Room deleted:", response);
 
       toast.success("Room deleted successfully!");
 
@@ -138,7 +138,7 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
       // Refetch to ensure sync with backend
       await handleFetchRooms();
     } catch (error: any) {
-      console.error("Delete error:", error);
+      devError("Delete error:", error);
       toast.error(error.response?.data?.error || "Failed to delete room");
     }
   };
@@ -153,7 +153,7 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
     toast.success("Logged out successfully!");
   }
 
-  console.log("theme", currentColorTheme);
+  devLog("theme", currentColorTheme);
   return (
     <Sidebar className="shh">
       <SidebarHeader className="flex flex-row w-full items-center justify-between pt-4 px-4 py-2">
@@ -348,7 +348,7 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
         <SidebarGroup className="flex flex-row gap-2 !important">
           <ThemeColorToggle
             onThemeChange={(newTheme) => {
-              console.log("Theme changed to:", newTheme);
+              devLog("Theme changed to:", newTheme);
               setCurrentColorTheme(newTheme);
             }}
           />

@@ -10,7 +10,7 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { logoutUser, refreshToken } from "@/api/auth";
-
+import { devLog, devError } from "@/lib/logger";
 type AuthContextType = {
   isAuthenticated: boolean;
   setIsAuthenticated: (value: boolean) => void;
@@ -27,26 +27,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const checkAuth = async () => {
-      console.log("Checking authentication on mount...");
+      devLog("Checking authentication on mount...");
       const hasSessionHint = localStorage.getItem("userEmailKey");
 
       if (hasSessionHint) {
-        console.log("Verifying session with token refresh...");
+        devLog("Verifying session with token refresh...");
         const success = await refreshToken();
-        
+
         if (success) {
-          console.log("Session verified - user authenticated");
+          devLog("Session verified - user authenticated");
           setIsAuthenticated(true);
         } else {
-          console.log("Session invalid - clearing and redirecting");
-          localStorage.removeItem("userEmailKey");
+          devLog("Session invalid - clearing and redirecting");
+          localStorage.removeItem("userSession");
           setIsAuthenticated(false);
           // Don't navigate here - let ProtectedRoute handle it
         }
       } else {
         setIsAuthenticated(false);
       }
-      
+
       setIsLoading(false);
     };
 
@@ -56,12 +56,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     try {
       await logoutUser();
-      console.log("Logout successful");
+      devLog("Logout successful");
     } catch (err) {
-      console.error("Logout error:", err);
+      devError("Logout error:", err);
     } finally {
       setIsAuthenticated(false);
-      localStorage.removeItem("userEmailKey");
+      localStorage.removeItem("userSession");
       navigate("/login", { replace: true });
     }
   }, [navigate]);

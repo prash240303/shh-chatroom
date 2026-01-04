@@ -11,7 +11,6 @@ from .tokens import create_access_token, create_refresh_token
 from django.views.decorators.csrf import csrf_exempt
 import jwt
 from django.conf import settings
-from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework import status
 
@@ -87,21 +86,21 @@ def refresh_token(request):
     Refresh access token using refresh token from httpOnly cookie.
     This endpoint should NOT be protected by JWT authentication middleware.
     """
-    print("\n" + "=" * 60)
-    print("🔄 REFRESH TOKEN REQUEST")
-    print(f"📍 Request path: {request.path}")
-    print(f"🔧 Request method: {request.method}")
+    # print("\n" + "=" * 60)
+    # print("🔄 REFRESH TOKEN REQUEST")
+    # print(f"📍 Request path: {request.path}")
+    # print(f"🔧 Request method: {request.method}")
     
     # Log all cookies for debugging
     all_cookies = request.COOKIES
-    print(f"All cookies present: {list(all_cookies.keys())}")
+    # print(f"All cookies present: {list(all_cookies.keys())}")
     
     token = request.COOKIES.get("refresh_token")
-    print(f"🔑 Refresh token: {token[:30] if token else 'NONE'}...")
+    # print(f"🔑 Refresh token: {token[:30] if token else 'NONE'}...")
 
     if not token:
-        print("No refresh token found in cookies")
-        print("=" * 60 + "\n")
+        # print("No refresh token found in cookies")
+        # print("=" * 60 + "\n")
         return Response({"detail": "No refresh token"}, status=400)
     
     try:
@@ -112,20 +111,20 @@ def refresh_token(request):
             algorithms=["HS256"]
         )
         
-        print(f"Refresh token decoded successfully")
-        print(f"📊 Token payload: {payload}")
+        # print(f"Refresh token decoded successfully")
+        # print(f"Token payload: {payload}")
 
         # Verify it's a refresh token, not an access token
         if payload.get("type") != "refresh":
-            print(f"Invalid token type: {payload.get('type')} (expected 'refresh')")
-            print("=" * 60 + "\n")
+            # print(f"Invalid token type: {payload.get('type')} (expected 'refresh')")
+            # print("=" * 60 + "\n")
             return Response({"detail": "Invalid token type"}, status=400)
 
         # Get user from token payload
         user_id = payload.get("id")
         if not user_id:
-            print("No user ID in token payload")
-            print("=" * 60 + "\n")
+            # print("No user ID in token payload")
+            # print("=" * 60 + "\n")
             return Response({"detail": "Invalid token payload"}, status=400)
             
         user = User.objects.get(id=user_id)
@@ -135,8 +134,8 @@ def refresh_token(request):
         new_access_token = create_access_token(user.id)
         new_refresh_token = create_refresh_token(user.id)
         
-        print(f"🔨 New access token generated: {new_access_token[:30]}...")
-        print(f"🔨 New refresh token generated: {new_refresh_token[:30]}...")
+        # print(f"New access token generated: {new_access_token[:30]}...")
+        # print(f"New refresh token generated: {new_refresh_token[:30]}...")
 
         response = Response(
             {
@@ -156,7 +155,7 @@ def refresh_token(request):
             path="/",
             max_age=15 * 60,  # 15 minutes
         )
-        print(f"New access_token cookie set (expires in 15 min)")
+        # print(f"New access_token cookie set (expires in 15 min)")
 
         # Set new refresh token (token rotation for better security)
         response.set_cookie(
@@ -168,45 +167,45 @@ def refresh_token(request):
             path="/",
             max_age=7 * 24 * 60 * 60,  # 7 days
         )
-        print(f"New refresh_token cookie set (expires in 7 days)")
-        print("REFRESH SUCCESSFUL")
-        print("=" * 60 + "\n")
+        # print(f"New refresh_token cookie set (expires in 7 days)")
+        # print("REFRESH SUCCESSFUL")
+        # print("=" * 60 + "\n")
         
         return response
 
     except jwt.ExpiredSignatureError:
-        print(f"Refresh token expired")
-        print("=" * 60 + "\n")
+        # print(f"Refresh token expired")
+        # print("=" * 60 + "\n")
         return Response({"detail": "Refresh token expired"}, status=401)
 
     except User.DoesNotExist:
-        print(f"User not found: ID {user_id if 'user_id' in locals() else 'unknown'}")
-        print("=" * 60 + "\n")
+        # print(f"User not found: ID {user_id if 'user_id' in locals() else 'unknown'}")
+        # print("=" * 60 + "\n")
         return Response({"detail": "User not found"}, status=401)
 
     except jwt.InvalidTokenError as e:
-        print(f"Invalid refresh token: {str(e)}")
-        print("=" * 60 + "\n")
+        # print(f"Invalid refresh token: {str(e)}")
+        # print("=" * 60 + "\n")
         return Response({"detail": "Invalid refresh token"}, status=401)
     
     except Exception as e:
-        print(f"Unexpected error: {str(e)}")
+        # print(f"Unexpected error: {str(e)}")
         import traceback
         traceback.print_exc()
-        print("=" * 60 + "\n")
+        # print("=" * 60 + "\n")
         return Response({"detail": "Server error"}, status=500)
 
-
+@api_view(['POST'])
 def logout_user(request):
-    print("\n" + "=" * 60)
-    print("🚪 LOGOUT REQUEST")
+    # print("\n" + "=" * 60)
+    # print("logout request")
     
     response = Response({"message": "Logged out"}, status=200)
     
     # Delete cookies with same settings
-    response.delete_cookie("access_token", path="/", samesite=None)
-    response.delete_cookie("refresh_token", path="/", samesite=None)
+    response.delete_cookie("access_token", path="/", samesite="Lax")
+    response.delete_cookie("refresh_token", path="/", samesite="Lax")
     
-    print("Cookies deleted")
-    print("=" * 60 + "\n")
+    # print("Cookies deleted")
+    # print("=" * 60 + "\n")
     return response

@@ -18,6 +18,7 @@ interface Room {
 }
 
 
+
 interface ChatAreaProps {
   selectedRoom: {
     roomname: string;
