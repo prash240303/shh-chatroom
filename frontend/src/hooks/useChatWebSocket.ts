@@ -142,7 +142,7 @@ export const useChatWebSocket = (selectedRoom?: {
         } else if (event.code === 4000 || event.code === 4002) {
           devError(" WebSocket auth failed (code " + event.code + ") - redirecting to login");
           setConnectionFailed(true);
-          localStorage.removeItem("userSesssion");
+          localStorage.removeItem("userSession");
           window.location.href = "/login";
         } else if (!event.wasClean) {
           // Other abnormal closures

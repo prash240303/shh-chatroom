@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 from chat.serializers import UserGetSerializer, MessageSerializer
 from rest_framework.response import Response
 from .models import Message, Rooms, RoomParticipant
-from rest_framework.permissions import IsAuthenticated
 from userAuth.tokenAuth import JWTAuthentication
 User = get_user_model()
 from rest_framework import status

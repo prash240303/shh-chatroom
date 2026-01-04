@@ -65,12 +65,12 @@
 //     if (csrfToken) {
 //       config.headers['X-CSRFToken'] = csrfToken;
 //     }
-    
+
 //     // Log the access token being sent
 //     const currentAccessToken = getAccessToken();
 //     devLog(`${config.method?.toUpperCase()} ${config.url}`);
 //     devLog(`Access token in request:`, currentAccessToken ? currentAccessToken.substring(0, 50) + '...' : 'NO TOKEN');
-    
+
 //     return config;
 //   },
 //   (error) => {
@@ -106,10 +106,10 @@
 //             devLog(`Retrying queued request: ${originalRequest.url}`);
 //             const newToken = getAccessToken();
 //             devLog(`New access token for queued request:`, newToken?.substring(0, 50) + '...');
-            
+
 //             // CRITICAL: Remove old Cookie header to let browser send fresh cookies
 //             delete originalRequest.headers.Cookie;
-            
+
 //             resolve(http(originalRequest));
 //           },
 //           reject: (err) => {
@@ -124,31 +124,31 @@
 
 //     try {
 //       devLog("Access token expired, attempting token refresh...");
-      
+
 //       const refreshResponse = await fetch(`${BASE_URL}refresh/`, {
 //         method: "POST",
 //         headers: {
 //             "Content-Type": "application/json",
-//             ...(getCsrfToken() ? { "X-CSRFToken": getCsrfToken()! } : {}) 
+//             ...(getCsrfToken() ? { "X-CSRFToken": getCsrfToken()! } : {})
 //         },
-//         credentials: "include", 
+//         credentials: "include",
 //       });
 
 //       if (refreshResponse.ok) {
 //         devLog("Token refresh successful");
-        
+
 //         // Wait a tiny bit to ensure cookies are set
 //         await new Promise(resolve => setTimeout(resolve, 100));
-        
+
 //         const newAccessToken = getAccessToken();
 //         devLog(`New access token after refresh:`, newAccessToken?.substring(0, 50) + '...');
-        
+
 //         // CRITICAL: Remove the old Cookie header from the original request
 //         // This allows the browser to automatically include the fresh cookies
 //         delete originalRequest.headers.Cookie;
-        
+
 //         processQueue(null, true);
-        
+
 //         devLog(`Retrying original request: ${originalRequest.url}`);
 //         return http(originalRequest);
 //       } else {
@@ -158,7 +158,7 @@
 //     } catch (refreshError) {
 //       devError("Token refresh failed, logging out:", refreshError);
 //       processQueue(refreshError, false);
-//       localStorage.removeItem("userSesssion");
+//       localStorage.removeItem("userSession");
 //       window.location.href = "/login";
 //       return Promise.reject(refreshError);
 //     } finally {
@@ -173,12 +173,10 @@
 
 // export default http;
 
-
 // lib/http.ts
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
-
 
 const http = axios.create({
   baseURL: BASE_URL,
@@ -215,7 +213,11 @@ http.interceptors.response.use(
     };
 
     // If error is not 401 or request was already retried, reject
-    if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
+    if (
+      !originalRequest ||
+      error.response?.status !== 401 ||
+      originalRequest._retry
+    ) {
       return Promise.reject(error);
     }
 
@@ -256,7 +258,7 @@ http.interceptors.response.use(
       return http(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError);
-      localStorage.removeItem("userSession")
+      localStorage.removeItem("userSession");
       window.location.href = "/login";
       return Promise.reject(refreshError);
     } finally {

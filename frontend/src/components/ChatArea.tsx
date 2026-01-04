@@ -51,7 +51,7 @@ const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
       socketRef.current &&
       socketRef.current.readyState === WebSocket.OPEN
     ) {
-      if(!currUser){
+      if (!currUser) {
         devWarn("User not found");
         return;
       }
