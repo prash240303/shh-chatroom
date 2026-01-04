@@ -34,8 +34,8 @@ export default function Login() {
       const data = await loginUser(formData);
 
       // Store optional non-sensitive data
-      if (data.user?.email) {
-        localStorage.setItem("userEmailKey", data.user.email);
+      if (data.user) {
+        localStorage.setItem("userSession", JSON.stringify(data.user));
       }
 
       setIsAuthenticated(true);

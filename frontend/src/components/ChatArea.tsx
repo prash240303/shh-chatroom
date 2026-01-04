@@ -5,26 +5,41 @@ import { useChatWebSocket } from "@/hooks/useChatWebSocket";
 import { ChatAreaProps, Message } from "@/types/chat-types";
 import { SidebarTrigger } from "./ui/sidebar";
 import NoRoomSelected from "./NoRoomSelected";
+import { User } from "@/types/chat-types";
+import { useNavigate } from "react-router-dom";
 
 const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
   const [message, setMessage] = useState<string>("");
 
-  const currentUserEmail = useMemo<string>(
-    () => localStorage.getItem("userEmailKey")?.trim().toLowerCase() || "",
-    []
+  const navigate = useNavigate();
+  const [currUser, setCurrUser] = useState<User>(
+   
   );
-
+ 
   // Memoize room config to prevent unnecessary WebSocket reconnections
   const roomConfig = useMemo<{ roomname: string; roomid: string } | undefined>(
-    () => selectedRoom
-      ? { roomname: selectedRoom.roomname, roomid: selectedRoom.roomId }
-      : undefined,
+    () =>
+      selectedRoom
+        ? { roomname: selectedRoom.roomname, roomid: selectedRoom.roomId }
+        : undefined,
     [selectedRoom?.roomname, selectedRoom?.roomId]
   );
 
   const { messages, socketRef } = useChatWebSocket(roomConfig);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const user = localStorage.getItem("userSession");
+    console.log("user", user);
+    if (user) {
+      setCurrUser(JSON.parse(user));
+    }
+    else {
+      console.log("user not found")
+      navigate("/login");
+    }
+  }, [navigate]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -40,7 +55,8 @@ const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
     ) {
       const newMessage = {
         type: "message",
-        user: currentUserEmail,
+        username: currUser?.username,
+        email: currUser?.email,
         message: message.trim(),
         timestamp: new Date().toISOString(),
       };
@@ -65,16 +81,13 @@ const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
 
   return (
     <div className="chat-area relative w-full h-screen  bg-neutral-100 text-black dark:border-neutral-700 dark:bg-neutral-900 dark:text-white flex flex-col place-items-center transition-colors duration-300">
-
       <div className="bg-white/20 absolute flex items-center border-b  z-50 backdrop-blur-md  top-0 left-0 w-full px-4 dark:bg-black/20 ">
         <div className=" top-4 left-4">
           <SidebarTrigger />
         </div>
 
         {/* Header */}
-        <div
-          className="p-4 text-left"
-        >
+        <div className="p-4 text-left">
           <h1 className="text-lg font-bold text-primary">
             {selectedRoom.roomname}
           </h1>
@@ -84,9 +97,11 @@ const ChatArea = memo<ChatAreaProps>(({ selectedRoom }) => {
       {/* Messages */}
       <div className="messages max-w-5xl mt-12 flex-1 overflow-y-auto p-4 w-full">
         {messages.map((msg: Message, index: number) => {
-          const isSender = msg.user.toLowerCase() === currentUserEmail;
+          console.log("msg", msg);
+          console.log("currUser", currUser);
+          const isSender = msg.username === currUser?.username;
           const isFirstMessageInGroup =
-            index === 0 || messages[index - 1]?.user !== msg.user;
+            index === 0 || messages[index - 1]?.username !== msg.username;
 
           return (
             <ChatBubble

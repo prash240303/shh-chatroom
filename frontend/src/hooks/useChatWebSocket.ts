@@ -85,7 +85,7 @@ export const useChatWebSocket = (selectedRoom?: {
           const data = JSON.parse(event.data);
           
           if (data.type === "message_history") {
-            console.log("Received message history:", data.messages.length, "messages");
+            console.log("Received message history:", data.messages, "messages");
             setMessages(data.messages); 
           } else if (data.type === "message") {
             console.log("New message received");
