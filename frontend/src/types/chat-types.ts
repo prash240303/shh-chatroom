@@ -1,16 +1,22 @@
 interface Message {
-  user: string;
   username:string;
+  email:string;
   message: string;
   timestamp: string;
 }
 
+interface User {
+  email: string;
+  username: string;
+  id: string;
+}
 
 
 interface Room {
   roomname: string;
   roomId: string;
 }
+
 
 
 interface ChatAreaProps {
@@ -20,4 +26,4 @@ interface ChatAreaProps {
   } | null;
 }
 
-export type { Message, Room, ChatAreaProps };
+export type { Message, Room, ChatAreaProps, User };

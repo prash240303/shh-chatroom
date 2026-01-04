@@ -7,41 +7,45 @@ from asgiref.sync import sync_to_async
 
 class PersonalChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        request_user = self.scope['user']
-        if request_user.is_authenticated:
-            await self.accept()
-
-            room_id = self.scope['url_route']['kwargs']['room_id']
-            self.room_group_name = f"chat_{room_id}"
-
-            await self.channel_layer.group_add(
-                self.room_group_name,
-                self.channel_name
-            )
-
-            # Fetch and send message history
-            history = await sync_to_async(self.fetch_message_history)()
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    "type": "message_history",
-                    "messages": history
-                }
-            )
-        else:
-            await self.close()
+        
+        # User is already authenticated by middleware
+        request_user = self.scope.get('user')
+        
+        self.user = request_user
+        
+        # Accept the connection
+        await self.accept()
+        
+        # Get room details
+        room_id = self.scope['url_route']['kwargs']['room_id']
+        self.room_group_name = f"chat_{room_id}"
+        
+        # Join room group
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+        
+        # Fetch and send message history
+        history = await sync_to_async(self.fetch_message_history)()
+        
+        await self.send(text_data=json.dumps({
+            "type": "message_history",
+            "messages": history
+        }))
+        
 
     async def disconnect(self, close_code):
+        
         if hasattr(self, 'room_group_name'):
             await self.channel_layer.group_discard(
                 self.room_group_name,
                 self.channel_name
             )
+        
 
     async def receive(self, text_data=None, bytes_data=None):
         try:
-            print(f"Received raw WebSocket message: {text_data}")
-
             if not text_data:
                 await self.send(text_data=json.dumps({
                     "type": "error", 
@@ -87,14 +91,13 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
                         "timestamp": saved_message['timestamp']
                     }
                 )
+                
         except json.JSONDecodeError:
-            print(f"Invalid JSON received: {text_data}")
             await self.send(text_data=json.dumps({
                 "type": "error", 
                 "message": "Invalid JSON format."
             }))
         except Exception as e:
-            print(f"Error receiving message: {e}")
             await self.send(text_data=json.dumps({
                 "type": "error", 
                 "message": "An error occurred."
@@ -111,7 +114,7 @@ class PersonalChatConsumer(AsyncWebsocketConsumer):
         }))
 
     async def message_history(self, event):
-        """Send chat history when a new user connects."""
+        """Send chat history when requested."""
         await self.send(text_data=json.dumps({
             "type": "message_history",
             "messages": event["messages"]

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from chat.views import get_user_list, get_messages,send_message, get_user_rooms, create_room, join_room,delete_room
-from userAuth.views import register_user, login_user
+from userAuth.views import register_user, login_user, refresh_token, logout_user
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 
@@ -10,6 +10,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/', register_user, name="register"),
     path('login/', login_user, name="login"),
+    path('refresh/', refresh_token, name="refresh"),    
+    path('logout/', logout_user, name="logout"),
 
     path('messages/<str:room_name>/', get_messages, name='get_messages'),
     path('messages/<str:room_name>/send/', send_message, name='send_message'),
