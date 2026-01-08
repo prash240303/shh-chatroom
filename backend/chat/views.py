@@ -51,31 +51,6 @@ def get_messages(request, room_name):
         return Response({"error": "Error fetching messages"}, status=status.HTTP_400_BAD_REQUEST)
 
         
-@api_view(['POST'])
-@authentication_classes([JWTAuthentication]) 
-def send_message(request, room_name):
-    """
-    Send a message to a specific chat room.
-    """
-    try:
-        message_text = request.data.get('message')
-        if not message_text:
-            return Response({"error": "Message field is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        room_group_name = f"chat_{room_name}"
-
-        message = Message.objects.create(
-            user=request.user,
-            message=message_text,
-            chat_room=room_group_name
-        )
-
-        serializer = MessageSerializer(message)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    except Exception as e:
-        print("Error sending message:", str(e))
-        return Response({"error": "Error sending message"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication]) 

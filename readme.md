@@ -1,38 +1,243 @@
-# Listing out UI features
+# shh-chatroom
 
-- [ ] Base URL (/home) Website UI
-- [ ] Logout button, confirmation popover needed
-- [ ] welcoming Toast message, on logout
-- [ ] Toast message content need refactor
-- [ ] Toast UI color fix
-- [ ] users able to see other user typing indicator (live)
-- [ ] persistent text formatting
-- [ ] support of text formatting : bold, italics _etc_
+A modern, privacy-focused chatroom application designed for secure and real-time group communication. The `shh-chatroom` repository provides a streamlined and extensible solution for creating your own chatrooms, supporting user authentication, message encryption(will be implemented soon), and rich real-time messaging features.
 
-# Product features
+---
 
-- [ ] End to end encryption with RSA/AES (to be implemented at last)
-- [ ] media support
-- [ ] error handling of all cases
-- [ ] API optimisations
-- [ ] Login, refresh tokens
-- [ ] Form validations at login and register
+## Introduction
 
-# Features achived
+`shh-chatroom` is an open-source chat application built to foster secure and efficient communication within groups. It leverages WebSockets for real-time interactions, prioritizing UI experience, minimalism, and ease of use. The project is a codebase for me to learn about django, django rest framework, Websockets, frontend engineering, and building for scale.
 
-- [ ] Color themes, UI accessible in 5 beatuiful color themes
-- [ ] websockets working properly, with live messsage, sending and reciving
-- [ ] Login and Register pages, beautified
-- [ ] UI color related bugs fixed.
+---
 
-# Auth flow
+## Features
 
-- [ ] Store access token in memory (React state / context)
-- [ ] Implement refresh token logic in backend
-- [ ] Create POST /refresh API
-- [ ] Backend sets refresh token as HttpOnly cookie on login
-- [ ] On API 401 → call /refresh
-- [ ] Retry original request if refresh succeeds
-- [ ] Redirect to login if /refresh returns 401
-- [ ] Call /refresh once on app startup
-- [ ] Implement refresh token rotation
+- **Real-Time Messaging:** Instantly send and receive messages using WebSockets.
+- **User Authentication:** Simple signup and login system ensures that only registered users can participate.
+- **Room Management:** Users can create, join, and leave chatrooms dynamically.
+- **Private Messaging:** Support for sending direct messages between users.
+- **Message Encryption:** End-to-end encryption for privacy (soon to be implemented).
+- **Responsive UI:** Clean and modern interface that works well on desktop and mobile devices.
+- **Extensibility:** Modular and clear codebase for easy customization and feature addition.
+
+---
+
+## Configuration
+
+### Environment Variables
+
+Create a `.env` file in the `backend` directory (optional, for production):
+
+```env
+SECRET_KEY=your-secret-key-here
+DEBUG=False
+DATABASE_URL=postgresql://user:password@localhost/dbname
+REDIS_URL=redis://127.0.0.1:6379/0
+```
+
+### Settings
+
+Key settings can be modified in `backend/settings.py`:
+
+- `SECRET_KEY` - Django secret key (change in production)
+- `DEBUG` - Debug mode (set to `False` in production)
+- `ALLOWED_HOSTS` - Allowed host headers
+- `CORS_ALLOWED_ORIGINS` - CORS allowed origins for frontend
+- `CHANNEL_LAYERS` - Redis channel layer configuration
+- `DATABASES` - Database configuration
+
+---
+
+## Prerequisites
+
+- Python 3.8+
+- Redis server
+- pip (Python package manager)
+---
+
+## Installation
+
+### 1. Clone the repository
+
+```bash
+cd backend
+```
+
+### 2. Create a virtual environment
+
+```bash
+python3 -m venv venv
+```
+
+### 3. Activate the virtual environment
+
+**On macOS/Linux:**
+```bash
+source venv/bin/activate
+```
+
+**On Windows:**
+```bash
+venv\Scripts\activate
+```
+
+### 4. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 5. Install and start Redis
+
+**On macOS (using Homebrew):**
+```bash
+brew install redis
+brew services start redis
+```
+
+**On Linux:**
+```bash
+sudo apt-get install redis-server
+sudo systemctl start redis
+```
+
+**On Windows:**
+Download and install Redis from [Redis for Windows](https://github.com/microsoftarchive/redis/releases)
+
+### 6. Run database migrations
+
+```bash
+python manage.py migrate
+```
+
+### 7. Create a superuser (optional)
+
+```bash
+python manage.py createsuperuser
+```
+
+
+## Running the Server
+
+### Development Server
+
+```bash
+python manage.py runserver
+```
+
+The server will run on `http://127.0.0.1:8000`
+
+### Using Daphne (ASGI server for WebSocket support)
+
+```bash
+daphne -b 0.0.0.0 -p 8000 backend.asgi:application
+```
+
+---
+
+## API Endpoints
+
+### Authentication
+
+#### Register User
+- **POST** `/register/`
+- **Body:**
+  ```json
+  {
+    "username": "string",
+    "email": "string",
+    "password": "string"
+  }
+  ```
+- **Response:** User object with status 201
+
+#### Login User
+- **POST** `/login/`
+- **Body:**
+  ```json
+  {
+    "username": "string",
+    "password": "string"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "message": "Login successful",
+    "token": "jwt-token",
+    "user": {...}
+  }
+  ```
+
+### Users
+
+#### Get User List
+- **GET** `/api/users/`
+- **Authentication:** HttpOnly Cookie (Automatic)
+- **Response:** List of all users except the authenticated user
+
+### Rooms
+
+#### Get User Rooms
+- **GET** `/rooms/`
+- **Authentication:** HttpOnly Cookie (Automatic)
+- **Response:** List of rooms the authenticated user is part of
+
+#### Create Room
+- **POST** `/rooms/create/`
+- **Authentication:** HttpOnly Cookie (Automatic)
+- **Body:**
+  ```json
+  {
+    "chat_room_name": "string"
+  }
+  ```
+- **Response:** Created room object with `room_id` and `chat_room_name`
+
+#### Join Room
+- **POST** `/room/join/`
+- **Authentication:** HttpOnly Cookie (Automatic)
+- **Body:**
+  ```json
+  {
+    "room_id": "uuid"
+  }
+  ```
+- **Response:** Success message
+
+#### Delete Room
+- **DELETE** `/room/delete/<room_id>/`
+- **Authentication:** HttpOnly Cookie (Automatic)
+- **Response:** Success message
+
+
+## WebSocket Endpoints
+
+### Chat WebSocket
+- **WebSocket** `ws://localhost:8000/ws/chat/<room_id>/`
+- **Authentication:** HttpOnly Cookie (via upgrade request)
+- **Events:**
+  - `message` - Send a message to the room
+  - `message_history` - Receive message history
+  - `receive` - Receive new messages in real-time
+  - `chat_message` - Send a message to the room
+  - `user_typing` - Notify all clients that a user is typing
+  - `save_message_to_db` - save messages to DB
+  - 
+
+---
+
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for more details.
+
+---
+
+
+```card
+{
+    "title": "Quick Start",
+    "content": "Clone the repo, run npm install, and npm start to launch your own secure chatroom."
+}
+```
