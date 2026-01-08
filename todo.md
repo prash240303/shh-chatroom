@@ -18,21 +18,21 @@
 - [ ] Login, refresh tokens
 - [ ] Form validations at login and register
 
-# Features achived
+# Features achieved
 
-- [ ] Color themes, UI accessible in 5 beatuiful color themes
-- [ ] websockets working properly, with live messsage, sending and reciving
-- [ ] Login and Register pages, beautified
-- [ ] UI color related bugs fixed.
+- [x] Color themes, UI accessible in 5 beautiful color themes
+- [x] websockets working properly, with live messsage, sending and receiving
+- [x] Login and Register pages, beautified
+- [x] UI color related bugs fixed.
 
 # Auth flow
 
-- [ ] Store access token in memory (React state / context)
-- [ ] Implement refresh token logic in backend
-- [ ] Create POST /refresh API
-- [ ] Backend sets refresh token as HttpOnly cookie on login
-- [ ] On API 401 → call /refresh
-- [ ] Retry original request if refresh succeeds
-- [ ] Redirect to login if /refresh returns 401
-- [ ] Call /refresh once on app startup
-- [ ] Implement refresh token rotation
+- [x] Store access token in memory (React state / context)
+- [x] Implement refresh token logic in backend
+- [x] Create POST /refresh API
+- [x] Backend sets refresh token as HttpOnly cookie on login
+- [x] On API 401 → call /refresh
+- [x] Retry original request if refresh succeeds
+- [x] Redirect to login if /refresh returns 401
+- [x] Call /refresh once on app startup
+- [x] Implement refresh token rotation

@@ -91,7 +91,6 @@ Create a `.env` file in the `backend` directory (optional, for production):
 ```env
 SECRET_KEY=your-secret-key-here
 DEBUG=False
-DATABASE_URL=postgresql://user:password@localhost/dbname
 REDIS_URL=redis://127.0.0.1:6379/0
 ```
 
@@ -283,7 +282,7 @@ To add more origins, update `CORS_ALLOWED_ORIGINS` in `settings.py`.
 
 ## Development
 
-### Running Tests
+### Running Tests (Soon)
 
 ```bash
 python manage.py test
@@ -345,11 +344,13 @@ redis-cli ping
 
 If you encounter database errors:
 ```bash
+find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
+find . -path "*/migrations/*.pyc" -delete
 python manage.py migrate
 python manage.py makemigrations
 ```
 
 ## License
 
-This project is part of the SHH Chatroom application.
+This project is part of the Shh Chatroom application.
 

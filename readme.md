@@ -30,9 +30,13 @@ Create a `.env` file in the `backend` directory (optional, for production):
 
 ```env
 SECRET_KEY=your-secret-key-here
-DEBUG=False
-DATABASE_URL=postgresql://user:password@localhost/dbname
-REDIS_URL=redis://127.0.0.1:6379/0
+```
+
+Create a `.env` file in the `frontend` directory (optional, for production):
+
+```env
+VITE_BASE_URL=http://localhost:8000/
+NODE_ENV="development"
 ```
 
 ### Settings
@@ -60,7 +64,8 @@ Key settings can be modified in `backend/settings.py`:
 ### 1. Clone the repository
 
 ```bash
-cd backend
+git clone https://github.com/prash240303/shh-chatroom.git
+cd shh-chatroom/backend
 ```
 
 ### 2. Create a virtual environment
@@ -228,16 +233,13 @@ daphne -b 0.0.0.0 -p 8000 backend.asgi:application
 ---
 
 
+### Frontend
+
+
+
 ## License
 
 This project is licensed under the MIT License. See the `LICENSE` file for more details.
 
 ---
 
-
-```card
-{
-    "title": "Quick Start",
-    "content": "Clone the repo, run npm install, and npm start to launch your own secure chatroom."
-}
-```
