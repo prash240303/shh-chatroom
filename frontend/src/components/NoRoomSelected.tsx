@@ -18,14 +18,14 @@ const NoRoomSelected = () => {
       </div>
 
       <div className="space-y-3">
-        <div className="w-full bg-muted hover:bg-accent text-foreground transition-colors rounded-xl p-4 flex items-center gap-3 cursor-pointer">
+        <div className="w-full bg-muted hover:bg-accent text-muted-foreground hover:text-black dark:hover:text-white transition-colors rounded-xl p-4 flex items-center gap-3 cursor-pointer">
           <Sparkles className="w-5 h-5 text-primary" />
-          <span className="text-muted-foreground">Instant encrypted chats (Soon)</span>
+          <span>Instant encrypted chats 3 (Soon)</span>
         </div>
 
-        <div className="w-full bg-muted hover:bg-accent text-foreground transition-colors rounded-xl p-4 flex items-center gap-3 cursor-pointer">
+        <div className="w-full bg-muted hover:bg-accent text-muted-foreground hover:text-black dark:hover:text-white transition-colors rounded-xl p-4 flex items-center gap-3 cursor-pointer">
           <AppWindowIcon className="w-5 h-5 text-primary" />
-          <span className="text-muted-foreground">Launch from any app</span>
+          <span>Launch from any app</span>
         </div>
       </div>
 
@@ -33,19 +33,19 @@ const NoRoomSelected = () => {
         <h2 className="text-lg font-semibold text-foreground">How it Works</h2>
 
         <div className="space-y-3">
-          <div className="w-full bg-muted hover:bg-accent text-foreground transition-colors rounded-xl p-4 flex items-center gap-3 cursor-pointer">
+          <div className="w-full bg-muted hover:bg-accent text-muted-foreground hover:text-black dark:hover:text-white transition-colors rounded-xl p-4 flex items-center gap-3 cursor-pointer">
             <Globe className="w-5 h-5 text-primary" />
-            <span className="text-muted-foreground">Go to shh.com</span>
+            <span>Go to shh.com</span>
           </div>
 
-          <div className="w-full bg-muted hover:bg-accent text-foreground transition-colors rounded-xl p-4 flex items-center gap-3 cursor-pointer">
+          <div className="w-full bg-muted hover:bg-accent text-muted-foreground hover:text-black dark:hover:text-white transition-colors rounded-xl p-4 flex items-center gap-3 cursor-pointer">
             <Copy className="w-5 h-5 text-primary" />
-            <span className="text-muted-foreground">Copy your new chat link</span>
+            <span>Copy your new chat link</span>
           </div>
 
-          <div className="w-full bg-muted hover:bg-accent text-foreground transition-colors rounded-xl p-4 flex items-center gap-3 cursor-pointer">
+          <div className="w-full bg-muted hover:bg-accent text-muted-foreground hover:text-black dark:hover:text-white transition-colors rounded-xl p-4 flex items-center gap-3 cursor-pointer">
             <Trash2Icon className="w-5 h-5 text-primary" />
-            <span className="text-muted-foreground">Instantly delete chats</span>
+            <span>Instantly delete chats</span>
           </div>
         </div>
       </div>
@@ -53,7 +53,7 @@ const NoRoomSelected = () => {
       <div className="flex gap-3 pt-4">
         <Button
           className={cn(
-            "relative overflow-hidden flex-1 h-full bg-chatPrimary text-white hover:bg-chatPrimary/90 hover:scale-[102%] ease-in-out duration-500 transition-all rounded-full py-3 px-3 text-lg shine-effect",
+            "relative overflow-hidden flex-1 h-full bg-chatPrimary text-white hover:bg-chatPrimary/90 hover:scale-[102%] ease-in-out duration-500 transition-all rounded-full py-3 px-3 text-lg ",
           )}
         >
           @shh
@@ -65,9 +65,6 @@ const NoRoomSelected = () => {
             <RippleButton>
               Create Room
             </RippleButton>
-            {/* <Button className="text-foreground font-medium text-lg bg-secondary inline-block w-fit border border-border hover:scale-[102%] ease-in-out duration-500 rounded-full px-8 hover:bg-accent py-3 h-full transition-all">
-              Create Room
-            </Button> */}
           </DialogTrigger>
           <DialogContent className="bg-card border-border shadow-md">
             <DialogHeader>

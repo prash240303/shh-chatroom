@@ -149,7 +149,6 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
 
   function handleLogout() {
     logout();
-    localStorage.removeItem("userSession");
     toast.success("Logged out successfully!");
   }
 
