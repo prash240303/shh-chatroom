@@ -16,7 +16,7 @@ import {
   Link,
 } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/auth/useAuth";
 import { useTheme } from "next-themes";
 import { fetchRooms, createRoom, Room, deleteRoom } from "@/api/rooms";
@@ -41,7 +41,7 @@ import { ThemeColorToggle } from "./ThemeColorToggle";
 import { ThemeModeToggle } from "./ThemeModeToggle";
 import { getGlobalColorTheme } from "@/lib/theme-colors";
 import { cn } from "@/lib/utils";
-import { devLog , devError} from "@/lib/logger";
+import { devLog, devError } from "@/lib/logger";
 
 interface AppSidebarProps {
   selectedRoom: {
@@ -162,7 +162,7 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
 
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <button className=" border p-3 rounded-full text-primary hover:bg-primary/10 dark:hover:bg-primary/10 bg-secondary dark:bg-black border-primary/20 ">
+            <button className=" border p-3 rounded-full text-primary hover:bg-primary/10 dark:hover:bg-primary/10 bg-muted-secondary dark:bg-muted-secondary border-primary/20 ">
               <Edit className="w-5 h-5" />
             </button>
           </DialogTrigger>
@@ -267,73 +267,75 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
                               className={`transition-colors ${
                                 selectedRoom?.roomId === room.room_id
                                   ? "text-white"
-                                  : "text-secondary-foreground group-hover:text-black"
+                                  : "text-secondary-foreground group-hover:text-black dark:group-hover:text-white"
                               }`}
                             >
                               <MoreVertical className="w-4 h-4" />
                             </button>
                           </PopoverTrigger>
-                          <PopoverContent className="bg-secondary space-y-0 border border-primary/10 w-36 p-1 rounded-md shadow-lg">
-                            <button
-                              className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-primary hover:bg-primary hover:text-white"
-                              onClick={() => {
-                                navigator.clipboard.writeText(
-                                  `${window.location.origin}/?room_id=${room.room_id}`
-                                );
-                                toast.success("Shareable link copied!");
-                              }}
-                            >
-                              <Link className="w-4 h-4 mr-2" /> Share Link
-                            </button>
+                          <PopoverContent className=" z-10 bg-white dark:bg-black space-y-0 border border-primary/10 w-36 p-0 rounded-md shadow-lg">
+                            <div className="bg-secondary/20 p-1 rounded-md">
+                              <button
+                                className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-primary hover:bg-primary hover:text-white"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(
+                                    `${window.location.origin}/?room_id=${room.room_id}`
+                                  );
+                                  toast.success("Shareable link copied!");
+                                }}
+                              >
+                                <Link className="w-4 h-4 mr-2" /> Share Link
+                              </button>
 
-                            <button
-                              className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-primary hover:bg-primary hover:text-white"
-                              onClick={() => {
-                                setRoomToDelete(room.room_id);
-                                setIsDeleteDialogOpen(true);
-                              }}
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" /> Delete Room
-                            </button>
+                              <button
+                                className="w-full flex items-center rounded-sm px-2 py-2 text-xs text-primary hover:bg-primary hover:text-white"
+                                onClick={() => {
+                                  setRoomToDelete(room.room_id);
+                                  setIsDeleteDialogOpen(true);
+                                }}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" /> Delete Room
+                              </button>
 
-                            <Dialog
-                              open={isDeleteDialogOpen}
-                              onOpenChange={setIsDeleteDialogOpen}
-                            >
-                              <DialogContent className="bg-secondary border-border">
-                                <DialogHeader>
-                                  <DialogTitle>Delete Room?</DialogTitle>
-                                  <DialogDescription>
-                                    Are you sure you want to delete this room?
-                                    This action cannot be undone.
-                                  </DialogDescription>
-                                </DialogHeader>
+                              <Dialog
+                                open={isDeleteDialogOpen}
+                                onOpenChange={setIsDeleteDialogOpen}
+                              >
+                                <DialogContent className="bg-secondary border-border">
+                                  <DialogHeader>
+                                    <DialogTitle>Delete Room?</DialogTitle>
+                                    <DialogDescription>
+                                      Are you sure you want to delete this room?
+                                      This action cannot be undone.
+                                    </DialogDescription>
+                                  </DialogHeader>
 
-                                <DialogFooter>
-                                  <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                      setIsDeleteDialogOpen(false);
-                                      setRoomToDelete(null);
-                                    }}
-                                  >
-                                    Cancel
-                                  </Button>
+                                  <DialogFooter>
+                                    <Button
+                                      variant="outline"
+                                      onClick={() => {
+                                        setIsDeleteDialogOpen(false);
+                                        setRoomToDelete(null);
+                                      }}
+                                    >
+                                      Cancel
+                                    </Button>
 
-                                  <Button
-                                    variant="destructive"
-                                    onClick={async () => {
-                                      if (roomToDelete)
-                                        await handleDeleteRooms(roomToDelete);
-                                      setIsDeleteDialogOpen(false);
-                                      setRoomToDelete(null);
-                                    }}
-                                  >
-                                    Delete
-                                  </Button>
-                                </DialogFooter>
-                              </DialogContent>
-                            </Dialog>
+                                    <Button
+                                      variant="destructive"
+                                      onClick={async () => {
+                                        if (roomToDelete)
+                                          await handleDeleteRooms(roomToDelete);
+                                        setIsDeleteDialogOpen(false);
+                                        setRoomToDelete(null);
+                                      }}
+                                    >
+                                      Delete
+                                    </Button>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
+                            </div>
                           </PopoverContent>
                         </Popover>
                       )}
@@ -344,7 +346,10 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
             )}
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroup className="flex flex-row gap-2 !important">
+      </SidebarContent>
+
+      <SidebarFooter>
+        <SidebarGroup className="flex px-0 flex-row gap-2 !important">
           <ThemeColorToggle
             onThemeChange={(newTheme) => {
               devLog("Theme changed to:", newTheme);
@@ -353,13 +358,10 @@ export function AppSidebar({ selectedRoom, setSelectedRoom }: AppSidebarProps) {
           />
           <ThemeModeToggle />
         </SidebarGroup>
-      </SidebarContent>
-
-      <SidebarFooter>
         <Button
           variant="destructive"
           className={cn(
-            "mt-4 mb-2 transition-all",
+            "mb-2 transition-all",
             currentColorTheme === "Zinc"
               ? "bg-black dark:bg-secondary hover:bg-neutral-800 dark:hover:bg-neutral-700"
               : "bg-primary hover:bg-primary/70"

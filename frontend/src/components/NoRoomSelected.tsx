@@ -11,9 +11,8 @@ const NoRoomSelected = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newRoomName, setNewRoomName] = useState("");
   return (
-    <div className="w-full shh my-auto max-w-md rounded-3xl p-8 space-y-6 bg-card text-card-foreground border border-border transition-colors">
+    <div className="w-full shh shadow-md my-auto max-w-md rounded-3xl p-8 space-y-6 bg-white dark:bg-black border border-border transition-colors">
       <div className="mx-auto w-[100px] text-primary h-[100px]">
-        {/* Light mode logo */}
         <Logo />
       </div>
 
