@@ -19,7 +19,7 @@ const NoRoomSelected = () => {
       <div className="space-y-3">
         <div className="w-full bg-muted hover:bg-accent text-muted-foreground hover:text-black dark:hover:text-white transition-colors rounded-xl p-4 flex items-center gap-3 cursor-pointer">
           <Sparkles className="w-5 h-5 text-primary" />
-          <span>Instant encrypted chats 3 (Soon)</span>
+          <span>Instant encrypted chats (Soon)</span>
         </div>
 
         <div className="w-full bg-muted hover:bg-accent text-muted-foreground hover:text-black dark:hover:text-white transition-colors rounded-xl p-4 flex items-center gap-3 cursor-pointer">
