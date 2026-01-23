@@ -6,10 +6,20 @@ A modern, privacy-focused chatroom application designed for secure and real-time
 
 ## Introduction
 
-`shh-chatroom` is an open-source chat application built to foster secure and efficient communication within groups. It leverages WebSockets for real-time interactions, prioritizing UI experience, minimalism, and ease of use. The project is a codebase for me to learn about django, django rest framework, Websockets, frontend engineering, and building for scale.
+**shh-chatroom** is an open-source chat application designed to foster secure and efficient group communication. It leverages **WebSockets** for real-time interactions while prioritizing **minimalism**, **UI/UX quality**, and **ease of use**.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/r7_p-ARvhTw?si=kvYG0M2GBxUG6NUd" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+This project primarily serves as a learning codebase for:
+- Django
+- Django REST Framework
+- WebSockets
+- Frontend engineering
+- Building scalable systems
 
+### Demo
+
+<video src="demo_assets/shh.mov" controls width="600"></video>
+
+> If the video doesn’t load, you can [watch it directly](https://youtu.be/r7_p-ARvhTw?si=TrH225y7xx0eNqch).
 ---
 
 ## Features
