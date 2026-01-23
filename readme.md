@@ -17,7 +17,7 @@ This project primarily serves as a learning codebase for:
 
 ### Demo
 
-<video src="demo_assets/shh.mov" controls width="600"></video>
+<video src="demo_assets/shh.mp4" controls width="600"></video>
 
 > If the video doesn’t load, you can <a href="https://youtu.be/r7_p-ARvhTw?si=TrH225y7xx0eNqch" target="_blank" rel="noopener noreferrer">watch it directly</a>.
 
