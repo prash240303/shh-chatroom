@@ -17,11 +17,12 @@ This project primarily serves as a learning codebase for:
 
 ### Demo
 
-<video src="demo_assets/shh.mp4" controls width="600"></video>
+<video controls width="600">
+  <source src="demo_assets/shh.mp4" type="video/mp4">
+</video>
 
-> If the video doesn’t load, you can <a href="https://youtu.be/r7_p-ARvhTw?si=TrH225y7xx0eNqch" target="_blank" rel="noopener noreferrer">watch it directly</a>.
+> If the video doesn’t load, you can <a href="https://youtu.be/r7_p-ARvhTw?si=TrH225y7xx0eNqch" target="_blank" rel="noopener noreferrer">watch it on YouTube</a>.
 
----
 
 ## Features
 
