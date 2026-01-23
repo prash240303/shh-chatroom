@@ -53,18 +53,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, [navigate]);
 
-  const logout = useCallback(async () => {
-    try {
-      await logoutUser();
-      devLog("Logout successful");
-    } catch (err) {
-      devError("Logout error:", err);
-    } finally {
-      setIsAuthenticated(false);
-      localStorage.removeItem("userSession");
-      navigate("/login", { replace: true });
-    }
-  }, [navigate]);
+const logout = useCallback(async () => {
+  try {
+    devLog("Logging out...");
+    await logoutUser();
+    devLog("Logout successful");
+    
+    // Clear state only after successful logout
+    setIsAuthenticated(false);
+    localStorage.removeItem("userSession");
+    navigate("/login", { replace: true });
+    
+  } catch (err) {
+    devError("Logout error:", err);
+    // Optionally still logout locally if backend fails
+    setIsAuthenticated(false);
+    localStorage.removeItem("userSession");
+    navigate("/login", { replace: true });
+  }
+}, [navigate]);
 
   return (
     <AuthContext.Provider

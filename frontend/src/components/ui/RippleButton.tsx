@@ -46,7 +46,7 @@ const RippleButton: React.FC<RippleButtonProps> = ({
       ref={buttonRef}
       onMouseEnter={createRipple}
       className={cn(
-        `relative overflow-hidden ${className} hover:bg-chatPrimary hover:text-secondary dark:text-secondary-foreground text-foreground font-medium text-lg bg-secondary inline-block w-fit border border-border hover:scale-[102%] ease-in-out duration-500 rounded-full px-8 py-3 h-full transition-all`
+        `relative overflow-hidden ${className} hover:bg-white hover:text-primary hover:border-primary dark:text-secondary-foreground text-foreground font-medium text-lg bg-secondary inline-block w-fit border border-border hover:scale-[102%] ease-in-out duration-500 rounded-full px-8 py-3 h-full transition-all`
       )}
       {...props}
     >

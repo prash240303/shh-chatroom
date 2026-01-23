@@ -33,6 +33,8 @@ def register_user(request):
     )
     
 @api_view(["POST"])
+@authentication_classes([]) 
+@permission_classes([AllowAny]) 
 def login_user(request):
     serializer = LoginSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -78,8 +80,8 @@ def login_user(request):
     return response
 
 @api_view(["POST"])
-@authentication_classes([])  # ← CRITICAL: Empty list = no authentication
-@permission_classes([AllowAny])  # ← Allow unauthenticated requests
+@authentication_classes([]) 
+@permission_classes([AllowAny]) 
 def refresh_token(request):
     """
     Refresh access token using refresh token from httpOnly cookie.

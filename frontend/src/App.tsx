@@ -3,9 +3,9 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Register from "./components/Register";
 import Login from "./components/Login";
 import ChatLayout from "./components/ChatLayout";
-import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "./context/theme-provider";
 import { AuthProvider } from "./auth/useAuth";
+import { Toaster } from "@/components/ui/sonner";
 
 function App() {
   return (
@@ -19,27 +19,7 @@ function App() {
           </Routes>
         </AuthProvider>
       </BrowserRouter>
-      <Toaster
-        position="top-center"
-        reverseOrder={false}
-        gutter={8}
-        toastOptions={{
-          className: "",
-          duration: 5000,
-          removeDelay: 1000,
-          style: {
-            background: "#363636",
-            color: "#fff",
-          },
-          success: {
-            duration: 3000,
-            iconTheme: {
-              primary: "green",
-              secondary: "black",
-            },
-          },
-        }}
-      />
+      <Toaster position="top-center" />
     </ThemeProvider>
   );
 }
